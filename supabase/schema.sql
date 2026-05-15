@@ -77,3 +77,8 @@ CREATE POLICY "deny_all_daily_steps"        ON daily_steps        FOR ALL USING 
 CREATE POLICY "deny_all_weekly_submissions" ON weekly_submissions  FOR ALL USING (false);
 CREATE POLICY "deny_all_weeks"              ON weeks              FOR ALL USING (false);
 CREATE POLICY "deny_all_announcements"      ON announcements      FOR ALL USING (false);
+
+
+-- ── Grants (ensure service role has full access) ──────────────────────────────
+GRANT ALL ON ALL TABLES IN SCHEMA public TO service_role;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO service_role;
