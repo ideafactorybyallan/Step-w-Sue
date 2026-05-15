@@ -12,7 +12,7 @@ interface Props {
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'del'];
 
-export function PinInput({ value, onChange, maxLength = 6, label = 'Enter PIN', error }: Props) {
+export function PinInput({ value, onChange, maxLength = 4, label = 'Enter PIN', error }: Props) {
   const handleKey = (key: string) => {
     if (key === 'del') {
       onChange(value.slice(0, -1));

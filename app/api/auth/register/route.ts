@@ -22,8 +22,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'First and last name are required.' }, { status: 400 });
   }
 
-  if (!/^\d{4,6}$/.test(pin)) {
-    return NextResponse.json({ error: 'PIN must be 4–6 digits.' }, { status: 400 });
+  if (!/^\d{4}$/.test(pin)) {
+    return NextResponse.json({ error: 'PIN must be 4 digits.' }, { status: 400 });
   }
 
   // Prevent duplicate names

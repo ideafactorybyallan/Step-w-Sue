@@ -235,7 +235,7 @@ export default function JoinPage() {
                   <p className="text-4xl mb-2">🔢</p>
                   <p className="font-display text-navy text-2xl">SET YOUR PIN</p>
                   <p className="font-body text-sm text-gray-500 mt-1">
-                    4–6 digits. You'll use this to sign back in.
+                    4 digits. You'll use this to sign back in.
                   </p>
                 </div>
 
@@ -247,7 +247,7 @@ export default function JoinPage() {
                 />
 
                 <Button onClick={() => {
-                  if (pin.length < 4) { setError('PIN must be at least 4 digits.'); return; }
+                  if (pin.length < 4) { setError('PIN must be 4 digits.'); return; }
                   setError('');
                   setAccountStage('confirm_pin');
                 }} size="lg" disabled={pin.length < 4}>
