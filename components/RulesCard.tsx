@@ -1,62 +1,83 @@
 'use client';
 import { useState } from 'react';
-import { Card } from './ui/Card';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
+import { clsx } from 'clsx';
+
+interface RuleSectionProps {
+  icon: string;
+  title: string;
+  accent: string;
+  bg: string;
+  children: React.ReactNode;
+}
+
+function RuleSection({ icon, title, accent, bg, children }: RuleSectionProps) {
+  return (
+    <div className={`${bg} rounded-xl p-3.5 border-l-4 ${accent}`}>
+      <div className="flex items-center gap-2 mb-2">
+        <span className="text-lg">{icon}</span>
+        <p className="font-body font-bold text-navy text-sm">{title}</p>
+      </div>
+      <div className="font-body text-sm text-navy/75 space-y-0.5 pl-7">
+        {children}
+      </div>
+    </div>
+  );
+}
 
 export function RulesCard() {
   const [open, setOpen] = useState(false);
 
   return (
-    <Card>
+    <div className="bg-white rounded-2xl shadow-card border border-gray-100/80 overflow-hidden">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center justify-between gap-2"
+        className="w-full flex items-center justify-between gap-2 p-5 transition-colors hover:bg-gray-50/50"
       >
-        <div className="flex items-center gap-2">
-          <span className="text-xl">📋</span>
-          <p className="font-display text-navy text-xl">CHALLENGE RULES</p>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-navy/8 flex items-center justify-center text-xl">📋</div>
+          <div className="text-left">
+            <p className="font-display text-navy text-xl leading-tight">CHALLENGE RULES</p>
+            <p className="font-body text-xs text-gray-400">Dates, buy-in, prizes & submissions</p>
+          </div>
         </div>
-        {open ? <ChevronUp size={18} className="text-navy/60 shrink-0" /> : <ChevronDown size={18} className="text-navy/60 shrink-0" />}
+        <ChevronDown
+          size={20}
+          className={clsx('text-navy/40 shrink-0 transition-transform duration-300', open && 'rotate-180')}
+        />
       </button>
 
       {open && (
-        <div className="mt-4 space-y-3 font-body text-sm text-gray-700">
-          <div className="bg-cream rounded-xl p-3 space-y-1">
-            <p className="font-semibold text-navy">📅 Dates</p>
-            <p>May 18 – June 14, 2026 (4 weeks)</p>
+        <div className="px-5 pb-5 space-y-2.5 animate-fade-up">
+          <RuleSection icon="📅" title="Dates" accent="border-sw-pink" bg="bg-sw-pink/5">
+            <p>May 18 – June 14, 2026 · 4 weeks</p>
             <p className="text-xs text-gray-500">Submit by Monday midnight after each week.</p>
-          </div>
+          </RuleSection>
 
-          <div className="bg-cream rounded-xl p-3 space-y-1">
-            <p className="font-semibold text-navy">💰 Buy-In</p>
-            <p>$20 for the overall challenge</p>
-            <p>$20 for weekly prizes ($5 × 4 weeks)</p>
+          <RuleSection icon="💰" title="Buy-In" accent="border-gold" bg="bg-gold/8">
+            <p>$20 overall + $20 weekly ($5 × 4)</p>
             <p className="font-semibold text-sw-pink">$40 total per person</p>
-          </div>
+          </RuleSection>
 
-          <div className="bg-cream rounded-xl p-3 space-y-1">
-            <p className="font-semibold text-navy">🗓️ Weeks</p>
-            <p>Week 1: May 18–24 · Submit by May 25</p>
-            <p>Week 2: May 25–31 · Submit by Jun 1</p>
-            <p>Week 3: Jun 1–7 · Submit by Jun 8</p>
-            <p>Week 4: Jun 8–14 · Submit by Jun 15</p>
-          </div>
+          <RuleSection icon="🗓️" title="Weekly Schedule" accent="border-sw-teal" bg="bg-sw-teal/8">
+            <p className="text-xs">Wk 1 · May 18–24 · submit May 25</p>
+            <p className="text-xs">Wk 2 · May 25–31 · submit Jun 1</p>
+            <p className="text-xs">Wk 3 · Jun 1–7 · submit Jun 8</p>
+            <p className="text-xs">Wk 4 · Jun 8–14 · submit Jun 15</p>
+          </RuleSection>
 
-          <div className="bg-cream rounded-xl p-3 space-y-1">
-            <p className="font-semibold text-navy">🏆 Prizes</p>
-            <p>Overall: highest total steps wins the pool</p>
-            <p>Weekly: most steps that week wins the weekly prize</p>
-            <p className="text-xs text-gray-500">
-              Prize amounts update dynamically based on participant count.
-            </p>
-          </div>
+          <RuleSection icon="🏆" title="Prizes" accent="border-gold" bg="bg-gold/8">
+            <p>Overall: highest total steps wins</p>
+            <p>Weekly: most steps that week wins</p>
+            <p className="text-xs text-gray-500">Prize pool scales with participants.</p>
+          </RuleSection>
 
-          <div className="bg-cream rounded-xl p-3">
-            <p className="font-semibold text-navy mb-1">📝 Submissions</p>
-            <p>Enter steps daily or as a weekly total. Submit by Monday midnight. Late submissions still count but get flagged.</p>
-          </div>
+          <RuleSection icon="📝" title="Submissions" accent="border-navy" bg="bg-navy/5">
+            <p>Daily steps or one weekly total.</p>
+            <p className="text-xs text-gray-500">Late = still counts, but flagged ⏰</p>
+          </RuleSection>
         </div>
       )}
-    </Card>
+    </div>
   );
 }
