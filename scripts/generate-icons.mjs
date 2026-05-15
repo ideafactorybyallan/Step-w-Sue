@@ -2,12 +2,10 @@
  * generate-icons.mjs
  *
  * Generates PWA icon PNGs from scratch using Node.js built-ins only.
- * Run with: node scripts/generate-icons.mjs
+ * Creates a stacked "STEP / w / SUE" logo on a navy background, with
+ * brand colors (pink STEP, gold w, white SUE).
  *
- * Creates:
- *   public/icons/icon-192x192.png
- *   public/icons/icon-512x512.png
- *   public/icons/apple-touch-icon.png  (180x180)
+ * Run with: node scripts/generate-icons.mjs
  */
 
 import { createWriteStream } from 'fs';
@@ -20,8 +18,109 @@ const deflateAsync = promisify(deflate);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const outDir = path.join(__dirname, '..', 'public', 'icons');
 
-// Navy background: #1B2F5E  →  r=27, g=47, b=94
-// Pink accent:     #E8234A  →  r=232, g=35, b=74
+// Brand colors
+const NAVY   = [27, 47, 94];     // #1B2F5E
+const PINK   = [232, 35, 74];    // #E8234A
+const GOLD   = [245, 197, 24];   // #F5C518
+const WHITE  = [255, 255, 255];
+const TEAL   = [43, 184, 170];   // #2BB8AA
+const NAVY_LIGHT = [42, 69, 128]; // #2A4580
+
+// 5×7 bitmap font — 1 = pixel filled
+const FONT = {
+  S: [
+    [0,1,1,1,0],
+    [1,0,0,0,1],
+    [1,0,0,0,0],
+    [0,1,1,1,0],
+    [0,0,0,0,1],
+    [1,0,0,0,1],
+    [0,1,1,1,0],
+  ],
+  T: [
+    [1,1,1,1,1],
+    [0,0,1,0,0],
+    [0,0,1,0,0],
+    [0,0,1,0,0],
+    [0,0,1,0,0],
+    [0,0,1,0,0],
+    [0,0,1,0,0],
+  ],
+  E: [
+    [1,1,1,1,1],
+    [1,0,0,0,0],
+    [1,0,0,0,0],
+    [1,1,1,1,0],
+    [1,0,0,0,0],
+    [1,0,0,0,0],
+    [1,1,1,1,1],
+  ],
+  P: [
+    [1,1,1,1,0],
+    [1,0,0,0,1],
+    [1,0,0,0,1],
+    [1,1,1,1,0],
+    [1,0,0,0,0],
+    [1,0,0,0,0],
+    [1,0,0,0,0],
+  ],
+  U: [
+    [1,0,0,0,1],
+    [1,0,0,0,1],
+    [1,0,0,0,1],
+    [1,0,0,0,1],
+    [1,0,0,0,1],
+    [1,0,0,0,1],
+    [0,1,1,1,0],
+  ],
+  // lowercase w — 5 wide, 5 tall
+  w: [
+    [1,0,0,0,1],
+    [1,0,0,0,1],
+    [1,0,1,0,1],
+    [1,1,0,1,1],
+    [0,1,0,1,0],
+  ],
+};
+
+const LETTER_W = 5;
+const LETTER_H_UPPER = 7;
+const LETTER_H_LOWER = 5;
+
+function setPixel(pixels, size, x, y, [r, g, b]) {
+  if (x < 0 || x >= size || y < 0 || y >= size) return;
+  const offset = y * (1 + size * 3) + 1 + x * 3;
+  pixels[offset] = r;
+  pixels[offset + 1] = g;
+  pixels[offset + 2] = b;
+}
+
+function drawWord(pixels, size, word, x, y, scale, color, kerning = 1) {
+  let cursorX = x;
+  for (const char of word) {
+    const glyph = FONT[char];
+    if (!glyph) continue;
+    const gh = glyph.length;
+    const gw = glyph[0].length;
+    for (let gy = 0; gy < gh; gy++) {
+      for (let gx = 0; gx < gw; gx++) {
+        if (glyph[gy][gx]) {
+          for (let dy = 0; dy < scale; dy++) {
+            for (let dx = 0; dx < scale; dx++) {
+              setPixel(pixels, size, cursorX + gx * scale + dx, y + gy * scale + dy, color);
+            }
+          }
+        }
+      }
+    }
+    cursorX += (gw + kerning) * scale;
+  }
+}
+
+function wordWidth(word, scale, kerning = 1) {
+  if (word.length === 0) return 0;
+  return word.length * LETTER_W * scale + (word.length - 1) * kerning * scale;
+}
 
 function crc32(buf) {
   const table = [];
@@ -46,71 +145,103 @@ function chunk(type, data) {
 }
 
 async function createPNG(size) {
-  const { r: bgR, g: bgG, b: bgB } = { r: 27, g: 47, b: 94 };      // navy
-  const { r: acR, g: acG, b: acB } = { r: 232, g: 35, b: 74 };     // pink
-  const { r: wR, g: wG, b: wB } = { r: 255, g: 255, b: 255 };      // white
-
-  // Draw a navy square with a pink rounded rectangle and "SW" text hint
   const raw = Buffer.alloc(size * (1 + size * 3));
 
+  // Navy gradient background (top darker, bottom lighter)
   for (let y = 0; y < size; y++) {
-    raw[y * (1 + size * 3)] = 0; // filter none
+    raw[y * (1 + size * 3)] = 0; // PNG filter byte
+    const t = y / size;
+    const r = Math.round(NAVY[0] + (NAVY_LIGHT[0] - NAVY[0]) * t * 0.4);
+    const g = Math.round(NAVY[1] + (NAVY_LIGHT[1] - NAVY[1]) * t * 0.4);
+    const b = Math.round(NAVY[2] + (NAVY_LIGHT[2] - NAVY[2]) * t * 0.4);
     for (let x = 0; x < size; x++) {
       const offset = y * (1 + size * 3) + 1 + x * 3;
-
-      // Normalized coords -1..1
-      const nx = (x / size - 0.5) * 2;
-      const ny = (y / size - 0.5) * 2;
-
-      // Pink rounded rect (shoe sole metaphor): 60% wide, 40% tall
-      const inRect = Math.abs(nx) < 0.6 && Math.abs(ny) < 0.4;
-      const corner = Math.sqrt(Math.max(0, Math.abs(nx) - 0.5) ** 2 + Math.max(0, Math.abs(ny) - 0.3) ** 2);
-      const inRounded = Math.abs(nx) < 0.62 && Math.abs(ny) < 0.42 && corner < 0.15;
-
-      // Simple "SW" lettering area (rough pixel blocks)
-      const lx = Math.floor((nx + 1) / 2 * 8); // 0–7
-      const ly = Math.floor((ny + 1) / 2 * 8); // 0–7
-
-      // S shape: cols 0-2, rows 1-6
-      const S = [
-        [0,1,1,0], [1,0,0,1], [1,0,0,0], [0,1,1,0], [0,0,0,1], [1,0,0,1], [0,1,1,0],
-      ];
-      // W shape: cols 4-7, rows 1-6
-      const W = [
-        [1,0,0,1], [1,0,0,1], [1,0,0,1], [1,0,1,1], [1,1,0,1], [0,1,1,0], [0,0,0,0],
-      ];
-
-      const inS = ly >= 1 && ly <= 7 && lx >= 0 && lx <= 3 && S[ly - 1]?.[lx];
-      const inW = ly >= 1 && ly <= 7 && lx >= 4 && lx <= 7 && W[ly - 1]?.[lx - 4];
-
-      let r, g, b;
-      if (inRounded && (inS || inW)) {
-        r = wR; g = wG; b = wB;    // white text on pink
-      } else if (inRounded) {
-        r = acR; g = acG; b = acB; // pink block
-      } else {
-        r = bgR; g = bgG; b = bgB; // navy bg
-      }
-
       raw[offset] = r;
       raw[offset + 1] = g;
       raw[offset + 2] = b;
     }
   }
 
+  // Pink radial glow upper-left
+  const glowR = size * 0.5;
+  const glowCx = size * 0.22;
+  const glowCy = size * 0.18;
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const d = Math.sqrt((x - glowCx) ** 2 + (y - glowCy) ** 2);
+      if (d < glowR) {
+        const s = (1 - d / glowR) * 0.20;
+        const offset = y * (1 + size * 3) + 1 + x * 3;
+        raw[offset]     = Math.round(raw[offset]     + (PINK[0] - raw[offset])     * s);
+        raw[offset + 1] = Math.round(raw[offset + 1] + (PINK[1] - raw[offset + 1]) * s);
+        raw[offset + 2] = Math.round(raw[offset + 2] + (PINK[2] - raw[offset + 2]) * s);
+      }
+    }
+  }
+
+  // Teal radial glow lower-right
+  const g2R = size * 0.5;
+  const g2Cx = size * 0.80;
+  const g2Cy = size * 0.85;
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const d = Math.sqrt((x - g2Cx) ** 2 + (y - g2Cy) ** 2);
+      if (d < g2R) {
+        const s = (1 - d / g2R) * 0.12;
+        const offset = y * (1 + size * 3) + 1 + x * 3;
+        raw[offset]     = Math.round(raw[offset]     + (TEAL[0] - raw[offset])     * s);
+        raw[offset + 1] = Math.round(raw[offset + 1] + (TEAL[1] - raw[offset + 1]) * s);
+        raw[offset + 2] = Math.round(raw[offset + 2] + (TEAL[2] - raw[offset + 2]) * s);
+      }
+    }
+  }
+
+  // Layout STEP / w / SUE
+  const padX = Math.round(size * 0.10);
+  const maxLineW = size - padX * 2;
+
+  // STEP = 4 chars (4*5 + 3 kerns = 23 units), SUE = 3 chars (3*5 + 2 = 17 units)
+  const stepScale = Math.floor(maxLineW / 23);
+  const sueScale = Math.floor(maxLineW / 17);
+  const lineScale = Math.min(stepScale, sueScale);
+  const wScale = Math.max(1, Math.round(lineScale * 0.7));
+
+  const stepW = wordWidth('STEP', lineScale);
+  const sueW = wordWidth('SUE', lineScale);
+  const wW = LETTER_W * wScale;
+
+  const stepH = LETTER_H_UPPER * lineScale;
+  const sueH = LETTER_H_UPPER * lineScale;
+  const wH = LETTER_H_LOWER * wScale;
+
+  const lineGap = Math.round(lineScale * 1.6);
+  const totalH = stepH + lineGap + wH + lineGap + sueH;
+  const startY = Math.round((size - totalH) / 2);
+
+  const stepX = Math.round((size - stepW) / 2);
+  const wX = Math.round((size - wW) / 2);
+  const sueX = Math.round((size - sueW) / 2);
+
+  const stepY = startY;
+  const wY = stepY + stepH + lineGap;
+  const sueY = wY + wH + lineGap;
+
+  drawWord(raw, size, 'STEP', stepX, stepY, lineScale, PINK);
+  drawWord(raw, size, 'w', wX, wY, wScale, GOLD);
+  drawWord(raw, size, 'SUE', sueX, sueY, lineScale, WHITE);
+
   const compressed = await deflateAsync(raw, { level: 9 });
 
-  // Build PNG
   const sig = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
 
   const ihdrData = Buffer.alloc(13);
   ihdrData.writeUInt32BE(size, 0);
   ihdrData.writeUInt32BE(size, 4);
-  ihdrData[8] = 8;  // bit depth
-  ihdrData[9] = 2;  // color type RGB
-  ihdrData[10] = 0; // compression
-  ihdrData[11] = 0; // filter
-  ihdrData[12] = 0; // interlace
+  ihdrData[8] = 8;
+  ihdrData[9] = 2;
+  ihdrData[10] = 0;
+  ihdrData[11] = 0;
+  ihdrData[12] = 0;
 
   const iend = Buffer.alloc(0);
 
@@ -124,9 +255,13 @@ async function createPNG(size) {
 
 async function write(filePath, size) {
   const data = await createPNG(size);
-  const ws = createWriteStream(filePath);
-  ws.write(data);
-  ws.end();
+  await new Promise((resolve, reject) => {
+    const ws = createWriteStream(filePath);
+    ws.on('finish', resolve);
+    ws.on('error', reject);
+    ws.write(data);
+    ws.end();
+  });
   console.log(`✓ Created ${filePath} (${size}×${size})`);
 }
 
@@ -134,5 +269,4 @@ await write(path.join(outDir, 'icon-192x192.png'), 192);
 await write(path.join(outDir, 'icon-512x512.png'), 512);
 await write(path.join(outDir, 'apple-touch-icon.png'), 180);
 
-console.log('\nAll icons generated! 🎉');
-console.log('Tip: For a polished icon, replace these with custom artwork using realfavicongenerator.net');
+console.log('\nAll icons generated! Step / w / Sue logo, pink/gold/white on navy.');
