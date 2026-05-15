@@ -51,8 +51,8 @@ export async function POST(request: Request) {
     .single();
 
   if (error || !participant) {
-    console.error('Register error:', error);
-    return NextResponse.json({ error: 'Could not create account — please try again.' }, { status: 500 });
+    console.error('Register error:', JSON.stringify(error));
+    return NextResponse.json({ error: error?.message ?? 'Could not create account — please try again.' }, { status: 500 });
   }
 
   const token = await createSessionToken({
