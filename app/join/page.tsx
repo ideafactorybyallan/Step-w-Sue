@@ -217,6 +217,7 @@ export default function JoinPage() {
                       placeholder="e.g. Sue"
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
+                      autoComplete="given-name"
                       className="w-full border-2 border-gray-200 bg-white rounded-2xl px-4 py-3 font-body text-navy focus:outline-none focus:border-sw-pink transition-colors"
                     />
                   </div>
@@ -230,6 +231,7 @@ export default function JoinPage() {
                       placeholder="e.g. Smith"
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
+                      autoComplete="family-name"
                       className="w-full border-2 border-gray-200 bg-white rounded-2xl px-4 py-3 font-body text-navy focus:outline-none focus:border-sw-pink transition-colors"
                     />
                   </div>

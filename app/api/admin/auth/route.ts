@@ -3,9 +3,10 @@ import { createAdminToken, ADMIN_COOKIE } from '@/lib/auth';
 
 export async function POST(request: Request) {
   const { password } = await request.json();
-  const adminPw = process.env.ADMIN_PASSWORD ?? '';
+  const adminPw = (process.env.ADMIN_PASSWORD ?? '').trim();
+  const submitted = (password ?? '').trim();
 
-  if (!adminPw || password !== adminPw) {
+  if (!adminPw || submitted !== adminPw) {
     return NextResponse.json({ error: 'Wrong password.' }, { status: 401 });
   }
 

@@ -28,8 +28,8 @@ export default async function WelcomePage() {
         {/* Decorative glows */}
         <div className="absolute -top-10 -right-10 w-48 h-48 bg-sw-pink/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-sw-teal/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-6 right-4 text-7xl opacity-10 select-none">🍁</div>
-        <div className="absolute bottom-6 left-4 text-7xl opacity-10 select-none">👟</div>
+        <div className="absolute top-6 right-4 text-7xl opacity-10 select-none" aria-hidden="true">🍁</div>
+        <div className="absolute bottom-6 left-4 text-7xl opacity-10 select-none" aria-hidden="true">👟</div>
 
         <p className="font-body text-sw-teal text-xs font-bold tracking-[0.2em] uppercase mb-3">
           Sue's 3rd Official Annual
@@ -94,7 +94,7 @@ export default async function WelcomePage() {
         {/* Stats grid */}
         <div className="grid grid-cols-2 gap-3 mt-2">
           {stats.map(({ icon, color, sub, label }) => (
-            <div key={label} className="bg-white rounded-2xl p-4 text-center shadow-card">
+            <div key={icon} className="bg-white rounded-2xl p-4 text-center shadow-card">
               <div
                 className="w-10 h-10 rounded-full flex items-center justify-center text-xl mx-auto mb-2"
                 style={{ backgroundColor: color + '20' }}

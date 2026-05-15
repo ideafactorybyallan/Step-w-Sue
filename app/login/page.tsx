@@ -6,6 +6,7 @@ import { PinInput } from '@/components/PinInput';
 import { Button } from '@/components/ui/Button';
 import { ChevronLeft, Check } from 'lucide-react';
 import { clsx } from 'clsx';
+import { avatarBg, avatarFg } from '@/lib/avatar';
 
 interface Participant {
   id: string;
@@ -15,22 +16,6 @@ interface Participant {
 }
 
 type Stage = 'pick' | 'pin';
-
-const AVATAR_COLORS = [
-  '#E8234A', '#2BB8AA', '#1B2F5E', '#F5C518', '#8B5CF6',
-  '#EC4899', '#06B6D4', '#10B981', '#F97316', '#6366F1',
-  '#EF4444', '#14B8A6', '#F59E0B', '#3B82F6', '#84CC16', '#D946EF',
-];
-
-function avatarColor(firstName: string, lastName: string): string {
-  const a = firstName.charCodeAt(0) || 0;
-  const b = lastName.charCodeAt(0) || 0;
-  return AVATAR_COLORS[(a * 31 + b) % AVATAR_COLORS.length];
-}
-
-function avatarTextColor(bg: string): string {
-  return ['#F5C518', '#F59E0B', '#84CC16'].includes(bg) ? '#1B2F5E' : '#ffffff';
-}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -125,8 +110,8 @@ export default function LoginPage() {
             ) : (
               <div className="space-y-2">
                 {participants.map((p) => {
-                  const bg = avatarColor(p.first_name, p.last_name);
-                  const fg = avatarTextColor(bg);
+                  const bg = avatarBg(p.first_name, p.last_name);
+                  const fg = avatarFg(bg);
                   return (
                     <button
                       key={p.id}
@@ -171,8 +156,8 @@ export default function LoginPage() {
               <div
                 className="w-10 h-10 rounded-full flex items-center justify-center font-body font-bold text-sm shrink-0"
                 style={{
-                  backgroundColor: avatarColor(selected.first_name, selected.last_name),
-                  color: avatarTextColor(avatarColor(selected.first_name, selected.last_name)),
+                  backgroundColor: avatarBg(selected.first_name, selected.last_name),
+                  color: avatarFg(avatarBg(selected.first_name, selected.last_name)),
                 }}
               >
                 {selected.first_name.charAt(0).toUpperCase()}{selected.last_name.charAt(0).toUpperCase()}

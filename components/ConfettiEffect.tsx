@@ -16,33 +16,17 @@ export function ConfettiEffect({ trigger }: Props) {
 
     const colors = ['#E8234A', '#2BB8AA', '#F5C518', '#1B2F5E', '#FFFFFF'];
 
-    confetti({
-      particleCount: 120,
-      spread: 80,
-      origin: { y: 0.6 },
-      colors,
-      ticks: 200,
-    });
+    confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 }, colors, ticks: 200 });
 
-    setTimeout(() => {
-      confetti({
-        particleCount: 60,
-        angle: 60,
-        spread: 55,
-        origin: { x: 0 },
-        colors,
-      });
+    const t1 = setTimeout(() => {
+      confetti({ particleCount: 60, angle: 60, spread: 55, origin: { x: 0 }, colors });
     }, 200);
 
-    setTimeout(() => {
-      confetti({
-        particleCount: 60,
-        angle: 120,
-        spread: 55,
-        origin: { x: 1 },
-        colors,
-      });
+    const t2 = setTimeout(() => {
+      confetti({ particleCount: 60, angle: 120, spread: 55, origin: { x: 1 }, colors });
     }, 400);
+
+    return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [trigger]);
 
   return null;

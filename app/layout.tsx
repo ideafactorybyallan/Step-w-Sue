@@ -15,9 +15,11 @@ const inter = Inter({
   display: 'swap',
 });
 
+const APP_DESC = "Sue's 3rd Official Annual Victoria Day Step Challenge — May 18 to June 14, 2026";
+
 export const metadata: Metadata = {
   title: 'Step w Sue',
-  description: "Sue's 3rd Official Annual Victoria Day Step Challenge — May 18 to June 14, 2026",
+  description: APP_DESC,
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
@@ -26,6 +28,17 @@ export const metadata: Metadata = {
   },
   icons: {
     apple: '/icons/apple-touch-icon.png',
+  },
+  openGraph: {
+    type: 'website',
+    title: 'Step w Sue',
+    description: APP_DESC,
+    images: [{ url: '/icons/icon-512x512.png', width: 512, height: 512 }],
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Step w Sue',
+    description: APP_DESC,
   },
 };
 
