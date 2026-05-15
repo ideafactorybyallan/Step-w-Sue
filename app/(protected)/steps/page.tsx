@@ -4,8 +4,14 @@ import { clsx } from 'clsx';
 import { StepEntryWeek } from '@/components/StepEntryWeek';
 import { MondayBanner } from '@/components/MondayBanner';
 import { SueSaysCard } from '@/components/SueSaysCard';
-import { isMondayEDT, isChallengeStarted, getWeekStatus } from '@/lib/dates';
+import { isMondayEDT, isChallengeStarted, getWeekStatus, formatDate, WEEKS } from '@/lib/dates';
 import type { WeeklySubmission, SessionUser } from '@/lib/types';
+
+const STATUS_LABEL: Record<string, string> = {
+  active:   '🟢 Active',
+  upcoming: '📅 Soon',
+  past:     '⏰ Past',
+};
 
 export default function StepsPage() {
   const [me, setMe] = useState<SessionUser | null>(null);
@@ -28,7 +34,6 @@ export default function StepsPage() {
     load();
   }, []);
 
-  // Default to the current active week
   useEffect(() => {
     for (let w = 1; w <= 4; w++) {
       if (getWeekStatus(w) === 'active') { setSelectedWeek(w); break; }
@@ -43,7 +48,8 @@ export default function StepsPage() {
       {isMonday && started && <MondayBanner />}
 
       {/* Header */}
-      <div className="bg-navy px-6 pt-10 pb-6">
+      <div className="bg-navy px-6 pt-10 pb-6 relative overflow-hidden">
+        <div className="absolute -top-8 -left-8 w-40 h-40 bg-sw-teal/10 rounded-full blur-3xl pointer-events-none" />
         <p className="font-body text-sw-teal text-xs font-bold tracking-widest uppercase mb-1">
           My Progress
         </p>
@@ -58,9 +64,8 @@ export default function StepsPage() {
 
       <div className="px-4 pt-4 pb-6 space-y-4">
 
-        {/* Challenge not started */}
         {!started && (
-          <div className="bg-white rounded-2xl p-6 text-center shadow-sm">
+          <div className="bg-white rounded-2xl p-6 text-center shadow-card">
             <p className="text-4xl mb-2">📅</p>
             <p className="font-display text-navy text-2xl">CHALLENGE STARTS</p>
             <p className="font-display text-sw-pink text-2xl">MAY 18!</p>
@@ -70,33 +75,49 @@ export default function StepsPage() {
           </div>
         )}
 
-        {/* Week selector */}
         {started && (
           <>
-            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+            {/* Week selector — card style */}
+            <div className="grid grid-cols-4 gap-2">
               {[1, 2, 3, 4].map((w) => {
                 const status = getWeekStatus(w);
                 const sub = getSubmissionForWeek(w);
                 const isActive = selectedWeek === w;
+                const week = WEEKS[w - 1];
                 return (
                   <button
                     key={w}
                     onClick={() => setSelectedWeek(w)}
                     className={clsx(
-                      'shrink-0 px-4 py-2 rounded-full font-body font-semibold text-sm transition-all flex items-center gap-1.5',
-                      isActive ? 'bg-navy text-white shadow' : 'bg-white text-navy border border-gray-200'
+                      'rounded-2xl p-3 text-center transition-all duration-150 border-2',
+                      isActive
+                        ? 'bg-navy border-navy shadow-btn'
+                        : 'bg-white border-transparent shadow-card hover:shadow-card-hover'
                     )}
                   >
-                    {sub ? '✅' : status === 'active' ? '🟢' : status === 'upcoming' ? '📅' : '⏰'}
-                    {' '}Week {w}
+                    <p className={clsx('font-display text-lg leading-tight', isActive ? 'text-white' : 'text-navy')}>
+                      W{w}
+                    </p>
+                    <p className="text-base mt-0.5">
+                      {sub ? '✅' : status === 'active' ? '🟢' : status === 'upcoming' ? '📅' : '⏰'}
+                    </p>
+                    <p className={clsx('font-body text-xs mt-0.5', isActive ? 'text-white/70' : 'text-gray-400')}>
+                      {sub ? 'Done' : STATUS_LABEL[status].split(' ')[1]}
+                    </p>
                   </button>
                 );
               })}
             </div>
 
+            {/* Selected week date range */}
+            <p className="font-body text-xs text-gray-400 text-center -mt-1">
+              Week {selectedWeek}: {formatDate(WEEKS[selectedWeek - 1].start)} – {formatDate(WEEKS[selectedWeek - 1].end)}
+            </p>
+
             {loading ? (
-              <div className="text-center py-12 text-gray-400 font-body text-sm">
-                Loading your steps...
+              <div className="bg-white rounded-2xl p-8 text-center shadow-card">
+                <div className="w-8 h-8 border-2 border-navy/20 border-t-navy rounded-full animate-spin mx-auto mb-3" />
+                <p className="font-body text-sm text-gray-400">Loading your steps...</p>
               </div>
             ) : me ? (
               <StepEntryWeek

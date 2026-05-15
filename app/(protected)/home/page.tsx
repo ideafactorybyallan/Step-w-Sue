@@ -1,18 +1,16 @@
 import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
 import { getSession } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
-import { getParticipantTitle } from '@/lib/sue-says';
 import { SueSaysCard } from '@/components/SueSaysCard';
 import { MondayBanner } from '@/components/MondayBanner';
 import { CountdownCard } from '@/components/CountdownCard';
 import { PrizePoolCard } from '@/components/PrizePoolCard';
 import { RulesCard } from '@/components/RulesCard';
-import { Card } from '@/components/ui/Card';
 import {
   isMondayEDT,
   isChallengeStarted,
   getCurrentWeekNumber,
-  getWeekStatus,
   WEEKS,
   formatDate,
 } from '@/lib/dates';
@@ -32,10 +30,8 @@ async function getHomeData() {
   const participants = pRes.data ?? [];
   const submissions = sRes.data ?? [];
   const announcements = aRes.data ?? [];
-
   const total = participants.length;
 
-  // Overall leader
   const totals = new Map<string, { steps: number; first_at: string | null }>();
   participants.forEach((p) => totals.set(p.id, { steps: 0, first_at: null }));
   submissions.forEach((s) => {
@@ -57,7 +53,6 @@ async function getHomeData() {
 
   const overallLeader = sorted[0] ?? null;
 
-  // Current week leader
   const currentWeek = getCurrentWeekNumber();
   let weekLeader: (typeof participants)[0] | null = null;
   let weekLeaderSteps = 0;
@@ -87,13 +82,9 @@ async function getHomeData() {
 
 export default async function HomePage() {
   const session = await getSession();
-  const { participants, total, overallLeader, weekLeader, weekLeaderSteps, currentWeek, announcements } = await getHomeData();
+  const { total, overallLeader, weekLeader, weekLeaderSteps, currentWeek, announcements } = await getHomeData();
   const isMonday = isMondayEDT();
   const challengeStarted = isChallengeStarted();
-
-  const leaderTitle = overallLeader
-    ? getParticipantTitle(1, total, true, false)
-    : null;
 
   const overallLeaderName = overallLeader
     ? overallLeader.participant.nickname ?? `${overallLeader.participant.first_name} ${overallLeader.participant.last_name}`
@@ -107,11 +98,11 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col">
-      {/* Monday reminder banner */}
       {isMonday && challengeStarted && <MondayBanner />}
 
       {/* Hero header */}
       <div className="bg-navy px-6 pt-10 pb-8 relative overflow-hidden">
+        <div className="absolute -top-8 -right-8 w-40 h-40 bg-sw-pink/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute top-4 right-4 text-6xl opacity-10 select-none">🍁</div>
         <p className="font-body text-sw-teal text-xs font-bold tracking-widest uppercase mb-1">
           Sue's 3rd Official Annual
@@ -119,13 +110,10 @@ export default async function HomePage() {
         <p className="font-display text-white text-4xl leading-none">VICTORIA DAY</p>
         <p className="font-display text-sw-pink text-5xl leading-none">STEP</p>
         <p className="font-display text-white text-3xl leading-none mb-3">CHALLENGE 2026</p>
-
         {session && (
           <p className="font-body text-white/60 text-sm">
             Welcome back,{' '}
-            <span className="text-white font-semibold">
-              {session.nickname ?? session.first_name}
-            </span>{' '}
+            <span className="text-white font-semibold">{session.nickname ?? session.first_name}</span>{' '}
             👋
           </p>
         )}
@@ -135,103 +123,95 @@ export default async function HomePage() {
       {announcements.length > 0 && (
         <div className="px-4 pt-4 space-y-2">
           {announcements.map((a) => (
-            <div key={a.id} className="bg-gold/15 border border-gold/40 rounded-xl p-3 text-center">
-              <p className="font-body text-navy text-sm font-medium">📢 {a.message}</p>
+            <div key={a.id} className="bg-gold/15 border border-gold/40 rounded-xl p-4 flex items-start gap-2">
+              <span className="text-base shrink-0">📢</span>
+              <p className="font-body text-navy text-sm font-medium">{a.message}</p>
             </div>
           ))}
         </div>
       )}
 
       <div className="px-4 pt-4 pb-6 space-y-4">
-        {/* Countdown */}
         <CountdownCard />
 
-        {/* Live highlights */}
+        {/* Leader cards */}
         {challengeStarted && (
           <div className="grid grid-cols-2 gap-3">
-            {/* Overall leader */}
-            <Card>
-              <p className="font-body text-xs text-gray-400 uppercase tracking-wider mb-1">Overall Leader</p>
-              {overallLeader && overallLeaderName ? (
-                <>
-                  <p className="font-display text-navy text-xl leading-tight">{overallLeaderName.toUpperCase()}</p>
-                  <p className="font-display text-sw-pink text-xl leading-tight">
-                    {overallLeader.steps.toLocaleString()}
-                  </p>
-                  <p className="font-body text-xs text-gray-400">total steps</p>
-                </>
-              ) : (
-                <p className="font-body text-sm text-gray-400">No submissions yet!</p>
-              )}
-            </Card>
+            <div className="bg-white rounded-2xl shadow-card overflow-hidden">
+              <div className="h-1.5 bg-gold" />
+              <div className="p-4">
+                <p className="font-body text-xs text-gray-400 uppercase tracking-wider mb-2">Overall Leader</p>
+                {overallLeader && overallLeaderName ? (
+                  <>
+                    <p className="font-display text-navy text-lg leading-tight truncate">{overallLeaderName.toUpperCase()}</p>
+                    <p className="font-display text-gold-dark text-2xl leading-tight">{overallLeader.steps.toLocaleString()}</p>
+                    <p className="font-body text-xs text-gray-400">total steps</p>
+                  </>
+                ) : (
+                  <p className="font-body text-sm text-gray-400">No submissions yet!</p>
+                )}
+              </div>
+            </div>
 
-            {/* Week leader */}
-            <Card>
-              <p className="font-body text-xs text-gray-400 uppercase tracking-wider mb-1">
-                {currentWeek ? `Week ${currentWeek} Leader` : 'Week Leader'}
-              </p>
-              {weekLeader && weekLeaderName ? (
-                <>
-                  <p className="font-display text-navy text-xl leading-tight">{weekLeaderName.toUpperCase()}</p>
-                  <p className="font-display text-sw-teal text-xl leading-tight">
-                    {weekLeaderSteps.toLocaleString()}
-                  </p>
-                  <p className="font-body text-xs text-gray-400">this week</p>
-                </>
-              ) : (
-                <p className="font-body text-sm text-gray-400">
-                  {currentWeek ? 'No submissions yet!' : 'Challenge complete'}
+            <div className="bg-white rounded-2xl shadow-card overflow-hidden">
+              <div className="h-1.5 bg-sw-teal" />
+              <div className="p-4">
+                <p className="font-body text-xs text-gray-400 uppercase tracking-wider mb-2">
+                  {currentWeek ? `Week ${currentWeek} Leader` : 'Week Leader'}
                 </p>
-              )}
-            </Card>
+                {weekLeader && weekLeaderName ? (
+                  <>
+                    <p className="font-display text-navy text-lg leading-tight truncate">{weekLeaderName.toUpperCase()}</p>
+                    <p className="font-display text-sw-teal text-2xl leading-tight">{weekLeaderSteps.toLocaleString()}</p>
+                    <p className="font-body text-xs text-gray-400">this week</p>
+                  </>
+                ) : (
+                  <p className="font-body text-sm text-gray-400">
+                    {currentWeek ? 'No submissions yet!' : 'Challenge complete'}
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
         )}
 
         {/* Participants + week info */}
-        <Card>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">👥</span>
-              <div>
-                <p className="font-display text-navy text-2xl leading-tight">
-                  {total} CHALLENGER{total !== 1 ? 'S' : ''}
-                </p>
-                <p className="font-body text-xs text-gray-400">in the 2026 challenge</p>
-              </div>
+        <div className="bg-white rounded-2xl shadow-card p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-navy/8 flex items-center justify-center text-xl">👥</div>
+            <div>
+              <p className="font-display text-navy text-2xl leading-tight">
+                {total} CHALLENGER{total !== 1 ? 'S' : ''}
+              </p>
+              <p className="font-body text-xs text-gray-400">in the 2026 challenge</p>
             </div>
-            {currentWeekInfo && (
-              <div className="text-right">
-                <p className="font-body text-xs font-semibold text-sw-teal">
-                  Week {currentWeek} Active
-                </p>
-                <p className="font-body text-xs text-gray-400">
-                  Until {formatDate(currentWeekInfo.end)}
-                </p>
-              </div>
-            )}
           </div>
-        </Card>
+          {currentWeekInfo && (
+            <div className="text-right">
+              <p className="font-body text-xs font-semibold text-sw-teal">Week {currentWeek} Active</p>
+              <p className="font-body text-xs text-gray-400">Until {formatDate(currentWeekInfo.end)}</p>
+            </div>
+          )}
+        </div>
 
-        {/* Quick action */}
+        {/* Quick action CTA */}
         <Link href="/steps">
-          <div className="bg-sw-pink rounded-2xl p-4 flex items-center justify-between active:scale-95 transition-transform">
+          <div className="bg-sw-pink rounded-2xl p-5 flex items-center justify-between shadow-btn hover:shadow-btn-hover hover:-translate-y-0.5 active:translate-y-0 transition-all duration-150">
             <div>
               <p className="font-display text-white text-2xl leading-tight">ADD MY STEPS</p>
-              <p className="font-body text-white/80 text-sm">
-                {isMonday ? 'Submit today! Deadline is midnight.' : 'Track your progress'}
+              <p className="font-body text-white/80 text-sm mt-0.5">
+                {isMonday ? '🚨 Submit today! Deadline is midnight.' : 'Track your progress 👟'}
               </p>
             </div>
-            <span className="text-4xl">👟</span>
+            <div className="flex items-center gap-1">
+              <span className="text-4xl">👟</span>
+              <ArrowRight size={20} className="text-white/70" />
+            </div>
           </div>
         </Link>
 
-        {/* Prize pool */}
         <PrizePoolCard participantCount={total} />
-
-        {/* Sue Says */}
         <SueSaysCard />
-
-        {/* Rules */}
         <RulesCard />
       </div>
     </div>

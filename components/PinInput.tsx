@@ -1,4 +1,5 @@
 'use client';
+import { useEffect, useRef, useState } from 'react';
 import { Delete } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -13,6 +14,19 @@ interface Props {
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'del'];
 
 export function PinInput({ value, onChange, maxLength = 4, label = 'Enter PIN', error }: Props) {
+  const [shake, setShake] = useState(false);
+  const prevError = useRef('');
+
+  useEffect(() => {
+    if (error && error !== prevError.current) {
+      setShake(true);
+      const t = setTimeout(() => setShake(false), 600);
+      prevError.current = error;
+      return () => clearTimeout(t);
+    }
+    if (!error) prevError.current = '';
+  }, [error]);
+
   const handleKey = (key: string) => {
     if (key === 'del') {
       onChange(value.slice(0, -1));
@@ -24,26 +38,26 @@ export function PinInput({ value, onChange, maxLength = 4, label = 'Enter PIN', 
   return (
     <div className="w-full">
       {label && (
-        <p className="font-body text-sm font-semibold text-navy text-center mb-3">{label}</p>
+        <p className="font-body text-sm font-semibold text-navy text-center mb-4">{label}</p>
       )}
 
       {/* Dots display */}
-      <div className="flex justify-center gap-3 mb-6">
+      <div className={clsx('flex justify-center gap-4 mb-5', shake && 'animate-shake')}>
         {Array.from({ length: maxLength }).map((_, i) => (
           <div
             key={i}
             className={clsx(
-              'w-3 h-3 rounded-full border-2 transition-all',
+              'w-4 h-4 rounded-full border-2 transition-all duration-150',
               i < value.length
                 ? 'bg-sw-pink border-sw-pink scale-110'
-                : 'bg-transparent border-navy/30'
+                : 'bg-transparent border-navy/25'
             )}
           />
         ))}
       </div>
 
       {error && (
-        <p className="font-body text-sm text-sw-pink text-center mb-3">{error}</p>
+        <p className="font-body text-sm text-sw-pink text-center mb-4 animate-fade-up">{error}</p>
       )}
 
       {/* Numpad */}
@@ -56,13 +70,13 @@ export function PinInput({ value, onChange, maxLength = 4, label = 'Enter PIN', 
               type="button"
               onClick={() => handleKey(key)}
               className={clsx(
-                'h-14 rounded-2xl font-body font-semibold text-xl transition-all active:scale-95',
+                'h-16 rounded-2xl font-body font-semibold text-2xl transition-all duration-100 active:scale-95',
                 key === 'del'
-                  ? 'bg-gray-100 text-navy/60 active:bg-gray-200'
-                  : 'bg-white text-navy shadow-sm border border-gray-100 active:bg-gray-50'
+                  ? 'bg-navy/8 text-navy/50 active:bg-navy/15'
+                  : 'bg-white text-navy shadow-card hover:shadow-card-hover active:shadow-none active:bg-gray-50 border border-gray-100'
               )}
             >
-              {key === 'del' ? <Delete size={20} className="mx-auto" /> : key}
+              {key === 'del' ? <Delete size={22} className="mx-auto" /> : key}
             </button>
           );
         })}
