@@ -34,6 +34,12 @@ const config: Config = {
         display: ['var(--font-bebas)', 'system-ui', 'sans-serif'],
         body: ['var(--font-inter)', 'system-ui', 'sans-serif'],
       },
+      boxShadow: {
+        'card':       '0 2px 16px 0 rgba(27,47,94,0.08)',
+        'card-hover': '0 6px 28px 0 rgba(27,47,94,0.14)',
+        'btn':        '0 2px 8px 0 rgba(27,47,94,0.18)',
+        'btn-hover':  '0 4px 16px 0 rgba(27,47,94,0.22)',
+      },
       animation: {
         'pulse-slow': 'pulse 3s ease-in-out infinite',
       },

@@ -5,8 +5,18 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { PinInput } from '@/components/PinInput';
 import { ChevronLeft } from 'lucide-react';
+import { clsx } from 'clsx';
 
 type Step = 'password' | 'account';
+type AccountStage = 'names' | 'pin' | 'confirm_pin';
+
+const PROGRESS_STEPS = ['Password', 'Your Info', 'Set PIN'];
+
+function progressIndex(step: Step, accountStage: AccountStage): number {
+  if (step === 'password') return 0;
+  if (accountStage === 'names') return 1;
+  return 2;
+}
 
 export default function JoinPage() {
   const router = useRouter();
@@ -17,9 +27,11 @@ export default function JoinPage() {
   const [nickname, setNickname] = useState('');
   const [pin, setPin] = useState('');
   const [pinConfirm, setPinConfirm] = useState('');
-  const [pinStage, setPinStage] = useState<'enter' | 'confirm'>('enter');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [accountStage, setAccountStage] = useState<AccountStage>('names');
+
+  const currentProgress = progressIndex(step, accountStage);
 
   // ── Step 1: verify challenge password ────────────────────────────────────
   const handleVerifyPassword = async () => {
@@ -46,29 +58,19 @@ export default function JoinPage() {
     }
   };
 
-  // ── Step 2: create account ────────────────────────────────────────────────
-  const handlePinEntry = (val: string) => {
-    if (pinStage === 'enter') {
-      setPin(val);
-    } else {
-      setPinConfirm(val);
-    }
-  };
-
-  const handlePinNext = () => {
-    if (pin.length < 4) {
-      setError('PIN must be at least 4 digits.');
+  const handleNamesNext = () => {
+    if (!firstName.trim() || !lastName.trim()) {
+      setError('First and last name are required.');
       return;
     }
     setError('');
-    setPinStage('confirm');
+    setAccountStage('pin');
   };
 
   const handleRegister = async () => {
     if (pinConfirm !== pin) {
       setError("PINs don't match — try again.");
       setPinConfirm('');
-      setPinStage('confirm');
       return;
     }
     if (!firstName.trim() || !lastName.trim()) {
@@ -99,24 +101,12 @@ export default function JoinPage() {
     }
   };
 
-  // ── Step 2 sub-stages: names → pin → confirm ──────────────────────────────
-  const [accountStage, setAccountStage] = useState<'names' | 'pin' | 'confirm_pin'>('names');
-
-  const handleNamesNext = () => {
-    if (!firstName.trim() || !lastName.trim()) {
-      setError('First and last name are required.');
-      return;
-    }
-    setError('');
-    setAccountStage('pin');
-  };
-
   return (
     <div className="min-h-screen bg-cream flex flex-col">
       {/* Header */}
       <div className="bg-navy px-4 pt-12 pb-6">
         <div className="flex items-center gap-3 mb-4">
-          <Link href="/" className="text-white/60 hover:text-white">
+          <Link href="/" className="text-white/60 hover:text-white transition-colors">
             <ChevronLeft size={24} />
           </Link>
           <p className="font-body text-white/60 text-sm">Step w Sue</p>
@@ -125,11 +115,45 @@ export default function JoinPage() {
         <p className="font-display text-white text-3xl leading-none">THE CHALLENGE</p>
       </div>
 
+      {/* Progress indicator */}
+      <div className="bg-navy/5 border-b border-navy/10 px-6 py-4">
+        <div className="flex items-center justify-between max-w-xs mx-auto">
+          {PROGRESS_STEPS.map((label, i) => (
+            <div key={label} className="flex items-center">
+              <div className="flex flex-col items-center gap-1">
+                <div className={clsx(
+                  'w-7 h-7 rounded-full flex items-center justify-center text-xs font-body font-bold transition-all duration-200',
+                  i < currentProgress
+                    ? 'bg-sw-teal text-white'
+                    : i === currentProgress
+                    ? 'bg-sw-pink text-white shadow-btn'
+                    : 'bg-gray-200 text-gray-400'
+                )}>
+                  {i < currentProgress ? '✓' : i + 1}
+                </div>
+                <span className={clsx(
+                  'text-xs font-body whitespace-nowrap',
+                  i === currentProgress ? 'text-navy font-semibold' : 'text-gray-400'
+                )}>
+                  {label}
+                </span>
+              </div>
+              {i < PROGRESS_STEPS.length - 1 && (
+                <div className={clsx(
+                  'w-10 h-0.5 mx-1 mb-5 transition-all duration-300',
+                  i < currentProgress ? 'bg-sw-teal' : 'bg-gray-200'
+                )} />
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div className="flex-1 px-6 py-8">
 
         {/* ── Step 1: challenge password ─────────────────────────────────── */}
         {step === 'password' && (
-          <div className="space-y-6">
+          <div className="space-y-6 animate-fade-up">
             <div className="text-center">
               <p className="text-4xl mb-2">🔑</p>
               <p className="font-display text-navy text-2xl">ENTER THE PASSWORD</p>
@@ -145,11 +169,15 @@ export default function JoinPage() {
                 value={challengePassword}
                 onChange={(e) => setChallengePassword(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleVerifyPassword()}
-                className="w-full border-2 border-gray-200 rounded-2xl px-4 py-4 font-body text-navy text-lg text-center focus:outline-none focus:border-sw-pink"
+                className="w-full border-2 border-gray-200 bg-white rounded-2xl px-4 py-4 font-body text-navy text-lg text-center focus:outline-none focus:border-sw-pink transition-colors"
                 autoCapitalize="none"
                 autoComplete="off"
               />
-              {error && <p className="font-body text-sm text-sw-pink mt-2 text-center">{error}</p>}
+              {error && (
+                <div className="mt-2 bg-sw-pink/8 border border-sw-pink/20 rounded-xl px-3 py-2 animate-fade-up">
+                  <p className="font-body text-sm text-sw-pink text-center">{error}</p>
+                </div>
+              )}
             </div>
 
             <Button onClick={handleVerifyPassword} loading={loading} size="lg">
@@ -170,7 +198,7 @@ export default function JoinPage() {
           <div className="space-y-6">
 
             {accountStage === 'names' && (
-              <>
+              <div className="space-y-6 animate-fade-up">
                 <div className="text-center">
                   <p className="text-4xl mb-2">👋</p>
                   <p className="font-display text-navy text-2xl">WHO ARE YOU?</p>
@@ -181,7 +209,7 @@ export default function JoinPage() {
 
                 <div className="space-y-3">
                   <div>
-                    <label className="font-body text-sm font-semibold text-navy block mb-1">
+                    <label className="font-body text-sm font-semibold text-navy block mb-1.5">
                       First Name *
                     </label>
                     <input
@@ -189,12 +217,12 @@ export default function JoinPage() {
                       placeholder="e.g. Sue"
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
-                      className="w-full border-2 border-gray-200 rounded-2xl px-4 py-3 font-body text-navy focus:outline-none focus:border-sw-pink"
+                      className="w-full border-2 border-gray-200 bg-white rounded-2xl px-4 py-3 font-body text-navy focus:outline-none focus:border-sw-pink transition-colors"
                     />
                   </div>
 
                   <div>
-                    <label className="font-body text-sm font-semibold text-navy block mb-1">
+                    <label className="font-body text-sm font-semibold text-navy block mb-1.5">
                       Last Name *
                     </label>
                     <input
@@ -202,35 +230,40 @@ export default function JoinPage() {
                       placeholder="e.g. Smith"
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
-                      className="w-full border-2 border-gray-200 rounded-2xl px-4 py-3 font-body text-navy focus:outline-none focus:border-sw-pink"
+                      className="w-full border-2 border-gray-200 bg-white rounded-2xl px-4 py-3 font-body text-navy focus:outline-none focus:border-sw-pink transition-colors"
                     />
                   </div>
 
                   <div>
-                    <label className="font-body text-sm font-semibold text-navy block mb-1">
+                    <label className="font-body text-sm font-semibold text-navy block mb-1.5">
                       Fun Nickname{' '}
-                      <span className="font-normal text-gray-400">(optional — shows on leaderboard)</span>
+                      <span className="font-normal text-gray-400 text-xs">(optional)</span>
                     </label>
                     <input
                       type="text"
-                      placeholder="e.g. The Pacer, Speedy, etc."
+                      placeholder="e.g. The Pacer, Speedy..."
                       value={nickname}
                       onChange={(e) => setNickname(e.target.value)}
-                      className="w-full border-2 border-gray-200 rounded-2xl px-4 py-3 font-body text-navy focus:outline-none focus:border-sw-pink"
+                      className="w-full border-2 border-gray-200 bg-white rounded-2xl px-4 py-3 font-body text-navy focus:outline-none focus:border-sw-pink transition-colors"
                     />
+                    <p className="text-xs text-gray-400 mt-1 px-1">Shows on the leaderboard</p>
                   </div>
 
-                  {error && <p className="font-body text-sm text-sw-pink text-center">{error}</p>}
+                  {error && (
+                    <div className="bg-sw-pink/8 border border-sw-pink/20 rounded-xl px-3 py-2 animate-fade-up">
+                      <p className="font-body text-sm text-sw-pink text-center">{error}</p>
+                    </div>
+                  )}
                 </div>
 
                 <Button onClick={handleNamesNext} size="lg">
                   Next: Set My PIN →
                 </Button>
-              </>
+              </div>
             )}
 
             {accountStage === 'pin' && (
-              <>
+              <div className="space-y-6 animate-fade-up">
                 <div className="text-center">
                   <p className="text-4xl mb-2">🔢</p>
                   <p className="font-display text-navy text-2xl">SET YOUR PIN</p>
@@ -239,25 +272,24 @@ export default function JoinPage() {
                   </p>
                 </div>
 
-                <PinInput
-                  value={pin}
-                  onChange={setPin}
-                  label="Choose a PIN"
-                  error={error || undefined}
-                />
+                <PinInput value={pin} onChange={setPin} label="Choose a PIN" error={error || undefined} />
 
-                <Button onClick={() => {
-                  if (pin.length < 4) { setError('PIN must be 4 digits.'); return; }
-                  setError('');
-                  setAccountStage('confirm_pin');
-                }} size="lg" disabled={pin.length < 4}>
+                <Button
+                  onClick={() => {
+                    if (pin.length < 4) { setError('PIN must be 4 digits.'); return; }
+                    setError('');
+                    setAccountStage('confirm_pin');
+                  }}
+                  size="lg"
+                  disabled={pin.length < 4}
+                >
                   Next: Confirm PIN →
                 </Button>
-              </>
+              </div>
             )}
 
             {accountStage === 'confirm_pin' && (
-              <>
+              <div className="space-y-6 animate-fade-up">
                 <div className="text-center">
                   <p className="text-4xl mb-2">✅</p>
                   <p className="font-display text-navy text-2xl">CONFIRM YOUR PIN</p>
@@ -284,11 +316,11 @@ export default function JoinPage() {
 
                 <button
                   onClick={() => { setPinConfirm(''); setAccountStage('pin'); setError(''); }}
-                  className="w-full font-body text-sm text-gray-500 py-2"
+                  className="w-full font-body text-sm text-gray-500 py-2 hover:text-navy transition-colors"
                 >
                   ← Change PIN
                 </button>
-              </>
+              </div>
             )}
 
           </div>
