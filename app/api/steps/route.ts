@@ -36,8 +36,11 @@ export async function POST(request: Request) {
   const entry_date: string = body.entry_date ?? '';
   const steps: number = parseInt(body.steps ?? 0);
 
-  if (!entry_date || isNaN(steps) || steps < 0) {
-    return NextResponse.json({ error: 'Invalid step entry' }, { status: 400 });
+  if (!entry_date || !/^\d{4}-\d{2}-\d{2}$/.test(entry_date)) {
+    return NextResponse.json({ error: 'Invalid date format' }, { status: 400 });
+  }
+  if (isNaN(steps) || steps < 0 || steps > 100_000) {
+    return NextResponse.json({ error: 'Steps must be between 0 and 100,000' }, { status: 400 });
   }
 
   const { data, error } = await supabase

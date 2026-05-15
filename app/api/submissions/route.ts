@@ -29,8 +29,8 @@ export async function POST(request: Request) {
   if (!week_number || week_number < 1 || week_number > 4) {
     return NextResponse.json({ error: 'Invalid week number' }, { status: 400 });
   }
-  if (isNaN(total_steps) || total_steps < 0) {
-    return NextResponse.json({ error: 'Invalid step count' }, { status: 400 });
+  if (isNaN(total_steps) || total_steps < 0 || total_steps > 1_000_000) {
+    return NextResponse.json({ error: 'Step count must be between 0 and 1,000,000' }, { status: 400 });
   }
 
   // Check if the week itself is locked by admin

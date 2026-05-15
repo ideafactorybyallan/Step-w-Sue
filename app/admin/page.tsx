@@ -54,9 +54,14 @@ export default function AdminLoginPage() {
           <button
             onClick={handleLogin}
             disabled={loading || !password}
-            className="w-full bg-sw-pink text-white font-display text-2xl py-4 rounded-2xl disabled:opacity-50 active:scale-95 transition-transform"
+            className="w-full bg-sw-pink text-white font-display text-2xl py-4 rounded-2xl disabled:opacity-50 active:scale-95 transition-all flex items-center justify-center gap-2"
           >
-            {loading ? '...' : 'ENTER'}
+            {loading ? (
+              <>
+                <span className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                <span>ENTERING...</span>
+              </>
+            ) : 'ENTER'}
           </button>
 
           <Link href="/" className="flex items-center justify-center gap-2 text-white/40 font-body text-sm">

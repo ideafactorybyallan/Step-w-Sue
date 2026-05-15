@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
 
-const getSecret = () => new TextEncoder().encode(process.env.JWT_SECRET!);
+const SECRET = new TextEncoder().encode(process.env.JWT_SECRET ?? '');
 
 const PROTECTED = ['/home', '/leaderboard', '/steps'];
 const ADMIN_PROTECTED = ['/admin/dashboard'];
@@ -16,7 +16,7 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/', request.url));
     }
     try {
-      await jwtVerify(token, getSecret());
+      await jwtVerify(token, SECRET);
     } catch {
       const res = NextResponse.redirect(new URL('/', request.url));
       res.cookies.delete('swc_session');
@@ -30,7 +30,7 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/admin', request.url));
     }
     try {
-      await jwtVerify(token, getSecret());
+      await jwtVerify(token, SECRET);
     } catch {
       return NextResponse.redirect(new URL('/admin', request.url));
     }
