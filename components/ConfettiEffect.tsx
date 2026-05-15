@@ -8,6 +8,10 @@ interface Props {
 
 export function ConfettiEffect({ trigger }: Props) {
   useEffect(() => {
+    return () => { confetti.reset(); };
+  }, []);
+
+  useEffect(() => {
     if (!trigger) return;
 
     const colors = ['#E8234A', '#2BB8AA', '#F5C518', '#1B2F5E', '#FFFFFF'];

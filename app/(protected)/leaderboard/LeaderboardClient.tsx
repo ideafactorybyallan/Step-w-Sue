@@ -127,6 +127,7 @@ export function LeaderboardClient({ overall, weekStandings, currentUserId, prize
               id: e.participant.id,
               name: e.participant.nickname ?? `${e.participant.first_name} ${e.participant.last_name}`,
               firstName: e.participant.first_name,
+              lastName: e.participant.last_name,
               steps: e.total_steps,
             }))} currentUserId={currentUserId} />
           )}
@@ -219,6 +220,7 @@ export function LeaderboardClient({ overall, weekStandings, currentUserId, prize
                   id: e.participant.id,
                   name: e.participant.nickname ?? `${e.participant.first_name} ${e.participant.last_name}`,
                   firstName: e.participant.first_name,
+                  lastName: e.participant.last_name,
                   steps: e.steps,
                 }))} currentUserId={currentUserId} />
               )}

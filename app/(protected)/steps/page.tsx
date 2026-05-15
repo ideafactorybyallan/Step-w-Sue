@@ -83,7 +83,8 @@ export default function StepsPage() {
                 const status = getWeekStatus(w);
                 const sub = getSubmissionForWeek(w);
                 const isActive = selectedWeek === w;
-                const week = WEEKS[w - 1];
+                const chipEmoji = sub?.is_locked ? '🔒' : sub ? '✅' : status === 'active' ? '🟢' : status === 'upcoming' ? '📅' : '⏰';
+                const chipLabel = sub?.is_locked ? 'Locked' : sub ? 'Done' : status === 'active' ? 'Active' : status === 'upcoming' ? 'Soon' : 'Overdue';
                 return (
                   <button
                     key={w}
@@ -98,11 +99,9 @@ export default function StepsPage() {
                     <p className={clsx('font-display text-lg leading-tight', isActive ? 'text-white' : 'text-navy')}>
                       W{w}
                     </p>
-                    <p className="text-base mt-0.5">
-                      {sub ? '✅' : status === 'active' ? '🟢' : status === 'upcoming' ? '📅' : '⏰'}
-                    </p>
+                    <p className="text-base mt-0.5">{chipEmoji}</p>
                     <p className={clsx('font-body text-xs mt-0.5', isActive ? 'text-white/70' : 'text-gray-400')}>
-                      {sub ? 'Done' : STATUS_LABEL[status].split(' ')[1]}
+                      {chipLabel}
                     </p>
                   </button>
                 );
