@@ -7,6 +7,7 @@ import { MondayBanner } from '@/components/MondayBanner';
 import { CountdownCard } from '@/components/CountdownCard';
 import { PrizePoolCard } from '@/components/PrizePoolCard';
 import { RulesCard } from '@/components/RulesCard';
+import { LogoutButton } from '@/components/LogoutButton';
 import {
   isMondayEDT,
   isChallengeStarted,
@@ -87,23 +88,30 @@ async function getHomeData(currentUserId: string | null) {
     }
   }
 
-  return { total, overallLeader, weekLeader, weekLeaderSteps, currentWeek, announcements, userStats };
+  const totalGroupSteps = submissions.reduce((sum, s) => sum + s.total_steps, 0);
+
+  return { total, overallLeader, weekLeader, weekLeaderSteps, currentWeek, announcements, userStats, totalGroupSteps };
 }
 
-const AVATAR_COLORS = ['#E8234A', '#2BB8AA', '#1B2F5E', '#F5C518', '#8B5CF6'];
+const AVATAR_COLORS = [
+  '#E8234A', '#2BB8AA', '#1B2F5E', '#F5C518', '#8B5CF6',
+  '#EC4899', '#06B6D4', '#10B981', '#F97316', '#6366F1',
+  '#EF4444', '#14B8A6', '#F59E0B', '#3B82F6', '#84CC16', '#D946EF',
+];
 
-function avatarBg(name: string): string {
-  const code = (name.charCodeAt(0) || 0) + (name.charCodeAt(1) || 0);
-  return AVATAR_COLORS[code % AVATAR_COLORS.length];
+function avatarBg(firstName: string, lastName: string): string {
+  const a = firstName.charCodeAt(0) || 0;
+  const b = lastName.charCodeAt(0) || 0;
+  return AVATAR_COLORS[(a * 31 + b) % AVATAR_COLORS.length];
 }
 
 function avatarFg(bg: string): string {
-  return bg === '#F5C518' ? '#1B2F5E' : '#ffffff';
+  return ['#F5C518', '#F59E0B', '#84CC16'].includes(bg) ? '#1B2F5E' : '#ffffff';
 }
 
 export default async function HomePage() {
   const session = await getSession();
-  const { total, overallLeader, weekLeader, weekLeaderSteps, currentWeek, announcements, userStats } = await getHomeData(session?.id ?? null);
+  const { total, overallLeader, weekLeader, weekLeaderSteps, currentWeek, announcements, userStats, totalGroupSteps } = await getHomeData(session?.id ?? null);
   const isMonday = isMondayEDT();
   const challengeStarted = isChallengeStarted();
 
@@ -117,7 +125,7 @@ export default async function HomePage() {
 
   const currentWeekInfo = currentWeek ? WEEKS[currentWeek - 1] : null;
   const userDisplayName = session?.nickname ?? session?.first_name ?? '';
-  const userAvatarBg = session ? avatarBg(session.first_name) : '#E8234A';
+  const userAvatarBg = session ? avatarBg(session.first_name, session.last_name) : '#E8234A';
   const userAvatarFg = avatarFg(userAvatarBg);
 
   // Progress to leader percentage
@@ -134,6 +142,11 @@ export default async function HomePage() {
         <div className="absolute top-4 right-4 text-7xl opacity-[0.08] select-none animate-float-slow">🍁</div>
         <div className="absolute bottom-2 left-2 text-6xl opacity-[0.06] select-none">👟</div>
 
+        {/* Logout button */}
+        <div className="absolute top-4 left-4">
+          <LogoutButton />
+        </div>
+
         <p className="font-body text-sw-teal text-xs font-bold tracking-[0.25em] uppercase mb-1">
           Sue's 3rd Official Annual
         </p>
@@ -144,10 +157,10 @@ export default async function HomePage() {
         {session && (
           <div className="flex items-center gap-2.5 mt-1">
             <div
-              className="w-9 h-9 rounded-full flex items-center justify-center font-body font-bold text-sm shrink-0 border-2 border-white/20"
+              className="w-9 h-9 rounded-full flex items-center justify-center font-body font-bold text-xs shrink-0 border-2 border-white/20"
               style={{ backgroundColor: userAvatarBg, color: userAvatarFg }}
             >
-              {session.first_name.charAt(0).toUpperCase()}
+              {session.first_name.charAt(0).toUpperCase()}{session.last_name.charAt(0).toUpperCase()}
             </div>
             <p className="font-body text-white/70 text-sm">
               Welcome back, <span className="text-white font-semibold">{userDisplayName}</span> 👋
@@ -292,6 +305,20 @@ export default async function HomePage() {
               <p className="font-body text-xs text-gray-400 mt-1">Until {formatDate(currentWeekInfo.end)}</p>
             </div>
           )}
+        </div>
+
+        {/* Group total steps */}
+        <div className="bg-white rounded-2xl shadow-card p-4 flex items-center gap-3">
+          <div className="w-11 h-11 rounded-full bg-sw-pink/10 flex items-center justify-center text-xl shrink-0">👟</div>
+          <div className="flex-1">
+            <p className="font-body text-xs text-gray-400 uppercase tracking-wider">Group Total Steps</p>
+            <p className="font-display text-sw-pink text-3xl leading-tight">
+              {totalGroupSteps > 0 ? totalGroupSteps.toLocaleString() : '—'}
+            </p>
+            <p className="font-body text-xs text-gray-400">
+              {totalGroupSteps > 0 ? 'combined steps by all challengers' : 'challenge starts soon — get ready!'}
+            </p>
+          </div>
         </div>
 
         {/* Quick action CTA */}

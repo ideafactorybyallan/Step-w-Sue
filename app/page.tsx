@@ -58,13 +58,6 @@ export default async function WelcomePage() {
         </div>
       </div>
 
-      {/* ── Tagline banner ────────────────────────────────────────────────── */}
-      <div className="bg-sw-teal py-3 text-center">
-        <p className="font-display text-white text-2xl tracking-wide">
-          STEP UP. SHOW UP. LET'S GO!
-        </p>
-      </div>
-
       {/* ── Announcements ─────────────────────────────────────────────────── */}
       {announcements && announcements.length > 0 && (
         <div className="px-4 pt-5 space-y-2">
@@ -82,15 +75,19 @@ export default async function WelcomePage() {
 
       {/* ── Action buttons ────────────────────────────────────────────────── */}
       <div className="flex-1 flex flex-col justify-center px-6 py-8 gap-4">
+        <p className="font-body text-navy/70 text-center text-base font-medium -mb-1">
+          The Perfect Excuse To Get Your Wheels Moving!
+        </p>
+
         <Link href="/join">
           <button className="w-full bg-sw-pink text-white font-display text-3xl py-5 rounded-2xl shadow-btn hover:shadow-btn-hover hover:-translate-y-0.5 active:translate-y-0 transition-all duration-150 tracking-wide">
-            JOIN THE CHALLENGE 🏃
+            TAP HERE, JOIN THE CHALLENGE 🏃
           </button>
         </Link>
 
         <Link href="/login">
           <button className="w-full bg-white text-navy font-body font-bold text-lg py-4 rounded-2xl border-2 border-navy/20 shadow-card hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-0 transition-all duration-150">
-            I Already Have an Account
+            Sign Back In
           </button>
         </Link>
 

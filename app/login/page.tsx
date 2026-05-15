@@ -16,15 +16,20 @@ interface Participant {
 
 type Stage = 'pick' | 'pin';
 
-const AVATAR_COLORS = ['#E8234A', '#2BB8AA', '#1B2F5E', '#F5C518', '#8B5CF6'];
+const AVATAR_COLORS = [
+  '#E8234A', '#2BB8AA', '#1B2F5E', '#F5C518', '#8B5CF6',
+  '#EC4899', '#06B6D4', '#10B981', '#F97316', '#6366F1',
+  '#EF4444', '#14B8A6', '#F59E0B', '#3B82F6', '#84CC16', '#D946EF',
+];
 
-function avatarColor(name: string): string {
-  const code = (name.charCodeAt(0) || 0) + (name.charCodeAt(1) || 0);
-  return AVATAR_COLORS[code % AVATAR_COLORS.length];
+function avatarColor(firstName: string, lastName: string): string {
+  const a = firstName.charCodeAt(0) || 0;
+  const b = lastName.charCodeAt(0) || 0;
+  return AVATAR_COLORS[(a * 31 + b) % AVATAR_COLORS.length];
 }
 
 function avatarTextColor(bg: string): string {
-  return bg === '#F5C518' ? '#1B2F5E' : '#ffffff';
+  return ['#F5C518', '#F59E0B', '#84CC16'].includes(bg) ? '#1B2F5E' : '#ffffff';
 }
 
 export default function LoginPage() {
@@ -120,7 +125,7 @@ export default function LoginPage() {
             ) : (
               <div className="space-y-2">
                 {participants.map((p) => {
-                  const bg = avatarColor(p.first_name);
+                  const bg = avatarColor(p.first_name, p.last_name);
                   const fg = avatarTextColor(bg);
                   return (
                     <button
@@ -129,10 +134,10 @@ export default function LoginPage() {
                       className="w-full bg-white rounded-2xl p-4 text-left border-2 border-transparent active:border-sw-pink active:bg-sw-pink/5 transition-all shadow-card hover:shadow-card-hover flex items-center gap-3"
                     >
                       <div
-                        className="w-10 h-10 rounded-full flex items-center justify-center font-body font-bold text-base shrink-0"
+                        className="w-10 h-10 rounded-full flex items-center justify-center font-body font-bold text-sm shrink-0"
                         style={{ backgroundColor: bg, color: fg }}
                       >
-                        {p.first_name.charAt(0).toUpperCase()}
+                        {p.first_name.charAt(0).toUpperCase()}{p.last_name.charAt(0).toUpperCase()}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-body font-bold text-navy text-base">
@@ -164,13 +169,13 @@ export default function LoginPage() {
             {/* Selected user chip */}
             <div className="flex items-center gap-3 bg-white rounded-2xl p-3 shadow-card">
               <div
-                className="w-10 h-10 rounded-full flex items-center justify-center font-body font-bold text-base shrink-0"
+                className="w-10 h-10 rounded-full flex items-center justify-center font-body font-bold text-sm shrink-0"
                 style={{
-                  backgroundColor: avatarColor(selected.first_name),
-                  color: avatarTextColor(avatarColor(selected.first_name)),
+                  backgroundColor: avatarColor(selected.first_name, selected.last_name),
+                  color: avatarTextColor(avatarColor(selected.first_name, selected.last_name)),
                 }}
               >
-                {selected.first_name.charAt(0).toUpperCase()}
+                {selected.first_name.charAt(0).toUpperCase()}{selected.last_name.charAt(0).toUpperCase()}
               </div>
               <div className="flex-1">
                 <p className="font-body font-bold text-navy text-sm">

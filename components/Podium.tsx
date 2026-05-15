@@ -1,20 +1,26 @@
 import { clsx } from 'clsx';
 
-const AVATAR_COLORS = ['#E8234A', '#2BB8AA', '#1B2F5E', '#F5C518', '#8B5CF6'];
+const AVATAR_COLORS = [
+  '#E8234A', '#2BB8AA', '#1B2F5E', '#F5C518', '#8B5CF6',
+  '#EC4899', '#06B6D4', '#10B981', '#F97316', '#6366F1',
+  '#EF4444', '#14B8A6', '#F59E0B', '#3B82F6', '#84CC16', '#D946EF',
+];
 
-function avatarBg(name: string): string {
-  const code = (name.charCodeAt(0) || 0) + (name.charCodeAt(1) || 0);
-  return AVATAR_COLORS[code % AVATAR_COLORS.length];
+function avatarBg(firstName: string, lastName: string): string {
+  const a = firstName.charCodeAt(0) || 0;
+  const b = lastName.charCodeAt(0) || 0;
+  return AVATAR_COLORS[(a * 31 + b) % AVATAR_COLORS.length];
 }
 
 function avatarFg(bg: string): string {
-  return bg === '#F5C518' ? '#1B2F5E' : '#ffffff';
+  return ['#F5C518', '#F59E0B', '#84CC16'].includes(bg) ? '#1B2F5E' : '#ffffff';
 }
 
 interface Entry {
   id: string;
   name: string;
   firstName: string;
+  lastName: string;
   steps: number;
 }
 
@@ -83,7 +89,7 @@ function PodiumSpot({ entry, rank, isCurrentUser }: SpotProps) {
     );
   }
 
-  const bg = avatarBg(entry.firstName);
+  const bg = avatarBg(entry.firstName, entry.lastName);
   const fg = avatarFg(bg);
 
   return (
@@ -98,7 +104,7 @@ function PodiumSpot({ entry, rank, isCurrentUser }: SpotProps) {
         )}
         style={{ backgroundColor: bg, color: fg }}
       >
-        {entry.firstName.charAt(0).toUpperCase()}
+        {entry.firstName.charAt(0).toUpperCase()}{entry.lastName.charAt(0).toUpperCase()}
       </div>
       <p className={clsx(
         'font-body font-bold text-sm text-center leading-tight px-1 mb-0.5 truncate max-w-full',
