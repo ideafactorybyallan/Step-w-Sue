@@ -10,8 +10,10 @@ CREATE TABLE IF NOT EXISTS participants (
   nickname      TEXT,
   pin_hash      TEXT NOT NULL,
   is_active     BOOLEAN NOT NULL DEFAULT TRUE,
+  is_observer   BOOLEAN NOT NULL DEFAULT FALSE,
   created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+CREATE INDEX IF NOT EXISTS idx_participants_is_observer ON participants(is_observer);
 
 -- ── Daily Steps (personal helper, not shown on leaderboard) ──────────────────
 CREATE TABLE IF NOT EXISTS daily_steps (

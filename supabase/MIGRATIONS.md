@@ -46,3 +46,5 @@ ALTER TABLE ... DROP COLUMN ...  -- removes a column and its data
 | File | Description | Date applied |
 |------|-------------|--------------|
 | 001_initial_schema.sql | Initial 5-table schema | May 2026 |
+| 002_indexes.sql | Performance indexes on hot leaderboard queries | May 2026 |
+| 003_observers.sql | Add `is_observer` column to participants (free spectator accounts) | May 2026 |

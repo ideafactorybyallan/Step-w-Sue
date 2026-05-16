@@ -71,7 +71,7 @@ export function PinInput({ value, onChange, maxLength = 4, label = 'Enter PIN', 
               aria-label={key === 'del' ? 'Delete' : key}
               onClick={() => handleKey(key)}
               className={clsx(
-                'h-16 rounded-2xl font-body font-semibold text-2xl transition-all duration-100 active:scale-95',
+                'h-16 rounded-2xl font-body font-semibold text-2xl transition-all duration-100 active:scale-[0.95]',
                 key === 'del'
                   ? 'bg-navy/8 text-navy/50 active:bg-navy/15'
                   : 'bg-white text-navy shadow-card hover:shadow-card-hover active:shadow-none active:bg-gray-50 border border-gray-100'

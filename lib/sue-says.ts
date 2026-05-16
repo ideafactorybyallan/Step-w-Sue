@@ -1,4 +1,4 @@
-export interface TitleConfig {
+interface TitleConfig {
   label: string;
   emoji: string;
   colorClass: string;
@@ -61,11 +61,7 @@ export const SUE_SAYS_QUOTES = [
   "The driveway counts. The mailbox counts. GO.",
 ];
 
-export function getRandomSueSays(): string {
-  return SUE_SAYS_QUOTES[Math.floor(Math.random() * SUE_SAYS_QUOTES.length)];
-}
-
-export const PARTICIPANT_TITLES: Record<string, TitleConfig> = {
+const PARTICIPANT_TITLES: Record<string, TitleConfig> = {
   first:         { label: 'The Pacesetter',      emoji: '👑', colorClass: 'bg-gold/20 text-gold-dark border-gold/40' },
   second:        { label: 'Hot On Their Heels',  emoji: '🔥', colorClass: 'bg-sw-pink/10 text-sw-pink-dark border-sw-pink/30' },
   third:         { label: 'The Dark Horse',      emoji: '⚡', colorClass: 'bg-sw-teal/10 text-sw-teal-dark border-sw-teal/30' },

@@ -54,7 +54,7 @@ export default function AdminLoginPage() {
           <button
             onClick={handleLogin}
             disabled={loading || !password}
-            className="w-full bg-sw-pink text-white font-display text-2xl py-4 rounded-2xl disabled:opacity-50 active:scale-95 transition-all flex items-center justify-center gap-2"
+            className="w-full bg-sw-pink text-white font-display text-2xl py-4 rounded-2xl disabled:opacity-50 active:scale-[0.95] transition-all duration-100 flex items-center justify-center gap-2"
           >
             {loading ? (
               <>
