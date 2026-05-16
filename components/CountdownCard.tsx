@@ -49,7 +49,7 @@ export function CountdownCard() {
         label="Challenge Starts In"
         number={getDaysUntilStart()}
         suffix="DAYS"
-        caption="May 18, 2026 — get those shoes ready! 👟"
+        caption="May 18, 2026 · Victoria Day weekend 🍁"
       />
     );
   }
@@ -59,7 +59,7 @@ export function CountdownCard() {
       label="Days Remaining"
       number={getDaysRemaining()}
       suffix="DAYS LEFT"
-      caption="Ends June 14 — keep stepping! 👟"
+      caption="Ends June 14 · keep going! 💪"
     />
   );
 }
