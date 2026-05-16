@@ -32,8 +32,8 @@ export function BottomNav() {
   };
 
   return (
-    <nav className="fixed bottom-0 inset-x-0 bg-navy/95 backdrop-blur-sm border-t border-white/10 z-50 safe-area-pb">
-      <div className="flex relative">
+    <nav className="fixed bottom-0 inset-x-0 bg-navy border-t border-white/10 z-50 safe-area-pb">
+      <div className="flex">
         {tabs.map(({ href, label, Icon }) => {
           const active = activePath.startsWith(href);
           return (
@@ -42,25 +42,26 @@ export function BottomNav() {
               href={href}
               prefetch
               onClick={() => handleTap(href)}
-              className="relative flex-1 flex flex-col items-center justify-center pt-1.5 pb-1.5 gap-1 min-h-[48px] transition-transform duration-100 active:scale-[0.92] active:opacity-70"
+              className="flex-1 flex flex-col items-center justify-center gap-1 min-h-[48px] select-none will-change-transform transition-transform duration-200 ease-spring active:scale-[0.80]"
             >
-              {active && (
-                <span
-                  aria-hidden="true"
-                  className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full bg-sw-pink"
-                />
-              )}
-              <Icon
-                size={20}
-                strokeWidth={active ? 2.5 : 1.8}
-                className={clsx(
-                  'transition-colors duration-150',
-                  active ? 'text-sw-pink' : 'text-white/45'
-                )}
-              />
               <span className={clsx(
-                'text-[11px] font-body leading-none transition-colors duration-150',
-                active ? 'text-sw-pink font-semibold' : 'text-white/45 font-normal'
+                'flex items-center justify-center w-14 h-6 rounded-full transition-all duration-200 ease-spring',
+                active ? 'bg-sw-pink/20 shadow-[0_0_10px_rgba(232,35,74,0.25)]' : ''
+              )}>
+                <Icon
+                  size={22}
+                  strokeWidth={active ? 2.4 : 1.8}
+                  className={clsx(
+                    'transition-colors duration-150',
+                    active
+                      ? 'text-sw-pink drop-shadow-[0_0_6px_rgba(232,35,74,0.7)]'
+                      : 'text-white/50'
+                  )}
+                />
+              </span>
+              <span className={clsx(
+                'font-body text-[10px] leading-none transition-colors duration-150',
+                active ? 'text-sw-pink font-semibold' : 'text-white/45'
               )}>
                 {label}
               </span>
