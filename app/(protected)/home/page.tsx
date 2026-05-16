@@ -209,7 +209,7 @@ export default async function HomePage() {
         </div>
       )}
 
-      <div className="px-4 pt-3 pb-6 space-y-3 stagger-children">
+      <div className="px-4 pt-3 pb-6 space-y-4 stagger-children">
 
         {/* Pre-challenge: countdown is the hero */}
         {!challengeStarted && <CountdownCard />}
