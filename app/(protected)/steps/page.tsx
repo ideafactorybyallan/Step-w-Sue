@@ -93,7 +93,7 @@ export default function StepsPage() {
                 key={w}
                 onClick={() => setSelectedWeek(w)}
                 className={clsx(
-                  'rounded-2xl p-4 text-center transition-all duration-150 border-2',
+                  'rounded-2xl p-4 text-center transition-all duration-150 border-2 active:scale-[0.95]',
                   isActive
                     ? 'bg-navy border-navy shadow-btn'
                     : 'bg-white border-transparent shadow-card hover:shadow-card-hover'

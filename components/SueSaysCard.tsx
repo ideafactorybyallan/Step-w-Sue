@@ -26,7 +26,7 @@ export function SueSaysCard() {
               return next === i ? (next + 1) % SUE_SAYS_QUOTES.length : next;
             })
           }
-          className="shrink-0 text-sw-teal/60 hover:text-sw-teal transition-colors p-1"
+          className="shrink-0 text-sw-teal/60 hover:text-sw-teal active:scale-[0.82] active:text-sw-teal transition-all duration-100 p-1"
           aria-label="New quote"
         >
           <RefreshCw size={14} />

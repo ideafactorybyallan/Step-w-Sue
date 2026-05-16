@@ -15,7 +15,7 @@ const variants: Record<Variant, string> = {
   primary:   'bg-sw-pink text-white shadow-btn hover:shadow-btn-hover hover:-translate-y-0.5 active:translate-y-0 active:shadow-btn',
   secondary: 'bg-navy text-white shadow-btn hover:shadow-btn-hover hover:-translate-y-0.5 active:translate-y-0 active:shadow-btn',
   teal:      'bg-sw-teal text-white shadow-btn hover:shadow-btn-hover hover:-translate-y-0.5 active:translate-y-0 active:shadow-btn',
-  ghost:     'bg-white text-navy border-2 border-navy hover:bg-gray-50 active:bg-gray-100',
+  ghost:     'bg-white text-navy border-2 border-navy hover:bg-gray-50 active:bg-gray-100 active:scale-[0.97]',
   danger:    'bg-red-500 text-white shadow-btn hover:shadow-btn-hover hover:-translate-y-0.5 active:translate-y-0',
 };
 
@@ -51,7 +51,7 @@ export function Button({
   return (
     <button
       className={clsx(
-        'font-body transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-btn w-full',
+        'font-body transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sw-pink focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-btn w-full',
         variants[variant],
         sizes[size],
         className

@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 import { ConfettiEffect } from './ConfettiEffect';
@@ -39,24 +39,30 @@ export function StepEntryWeek({ weekNumber, submission, userId, previewMode = fa
   const [error, setError] = useState('');
   const [confetti, setConfetti] = useState(false);
   const [success, setSuccess] = useState(false);
+  const weekCache = useRef<Map<number, DailyStep[]>>(new Map());
 
   useEffect(() => {
     const loadData = async () => {
       if (previewMode) return;
       try {
-        const res = await fetch(`/api/steps?week=${weekNumber}`);
-        if (res.ok) {
-          const data: DailyStep[] = await res.json();
-          const fromDB: Record<string, string> = {};
-          data.forEach((s) => { fromDB[s.entry_date] = String(s.steps); });
-          const draft = localStorage.getItem(DRAFT_KEY);
-          const merged = draft ? { ...fromDB, ...JSON.parse(draft) } : fromDB;
-          setDailySteps(merged);
+        let data: DailyStep[];
+        if (weekCache.current.has(weekNumber)) {
+          data = weekCache.current.get(weekNumber)!;
+        } else {
+          const res = await fetch(`/api/steps?week=${weekNumber}`);
+          if (!res.ok) return;
+          data = await res.json();
+          weekCache.current.set(weekNumber, data);
         }
+        const fromDB: Record<string, string> = {};
+        data.forEach((s) => { fromDB[s.entry_date] = String(s.steps); });
+        const draft = localStorage.getItem(DRAFT_KEY);
+        const merged = draft ? { ...fromDB, ...JSON.parse(draft) } : fromDB;
+        setDailySteps(merged);
       } catch {/* non-critical */}
     };
     loadData();
-  }, [weekNumber, DRAFT_KEY]);
+  }, [weekNumber, DRAFT_KEY, previewMode]);
 
   // Auto-clear save error after 4 seconds
   useEffect(() => {
@@ -138,6 +144,7 @@ export function StepEntryWeek({ weekNumber, submission, userId, previewMode = fa
         return;
       }
       localStorage.removeItem(DRAFT_KEY);
+      weekCache.current.delete(weekNumber);
       setConfetti(true);
       setSuccess(true);
       setTimeout(() => setConfetti(false), 3000);
@@ -285,7 +292,7 @@ export function StepEntryWeek({ weekNumber, submission, userId, previewMode = fa
             key={m}
             onClick={() => handleModeSwitch(m)}
             className={clsx(
-              'relative z-10 flex-1 py-2.5 rounded-lg font-body text-sm font-medium transition-colors duration-200',
+              'relative z-10 flex-1 py-2.5 rounded-lg font-body text-sm font-medium transition-all duration-150 active:scale-[0.96]',
               mode === m ? 'text-navy' : 'text-gray-400'
             )}
           >
@@ -328,12 +335,12 @@ export function StepEntryWeek({ weekNumber, submission, userId, previewMode = fa
                     onChange={(e) => handleDayChange(date, e.target.value)}
                     onBlur={() => handleSaveDayToDb(date)}
                     className={clsx(
-                      'w-full border rounded-xl px-3 py-2 font-body text-navy text-right text-lg focus:outline-none transition-colors',
+                      'w-full border rounded-xl px-3 py-2 font-body text-navy text-right text-lg focus:outline-none transition-colors duration-150',
                       dayError
-                        ? 'border-orange-300 bg-orange-50 focus:border-orange-400'
+                        ? 'border-orange-300 bg-orange-50 hover:border-orange-400 focus:border-orange-400'
                         : isToday
-                        ? 'border-sw-teal/30 bg-white focus:border-sw-teal'
-                        : 'border-gray-200 bg-white focus:border-sw-teal'
+                        ? 'border-sw-teal/30 bg-white hover:border-sw-teal/50 focus:border-sw-teal'
+                        : 'border-gray-200 bg-white hover:border-gray-300 focus:border-sw-teal'
                     )}
                     min="0"
                     max={MAX_DAILY}
@@ -374,8 +381,8 @@ export function StepEntryWeek({ weekNumber, submission, userId, previewMode = fa
             className={clsx(
               'w-full border-2 rounded-2xl px-4 py-4 font-display text-navy text-4xl text-center focus:outline-none transition-colors',
               weeklyHasError
-                ? 'border-orange-300 bg-orange-50 focus:border-orange-400'
-                : 'border-gray-200 bg-white focus:border-sw-pink'
+                ? 'border-orange-300 bg-orange-50 hover:border-orange-400 focus:border-orange-400'
+                : 'border-gray-200 bg-white hover:border-gray-300 focus:border-sw-pink'
             )}
             min="0"
             max={MAX_WEEKLY}
