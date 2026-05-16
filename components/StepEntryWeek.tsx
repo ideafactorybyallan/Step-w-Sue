@@ -369,7 +369,7 @@ export function StepEntryWeek({
       </div>
 
       {mode === 'daily' ? (
-        <div className="space-y-2 stagger-children">
+        <div className="space-y-3 stagger-children">
           {days.map((date) => {
             const dayName = getDayName(date);
             const dateStr = formatDate(date);
@@ -383,7 +383,7 @@ export function StepEntryWeek({
               <div
                 key={date}
                 className={clsx(
-                  'rounded-xl p-3 border-l-2 transition-colors',
+                  'rounded-xl p-4 border-l-2 transition-colors',
                   isToday
                     ? 'bg-white border-sw-teal shadow-el-1 [box-shadow:inset_0_1px_0_0_rgba(255,255,255,0.6),0_2px_8px_rgba(43,184,170,0.10)]'
                     : 'bg-white border-transparent shadow-el-1'
@@ -396,7 +396,7 @@ export function StepEntryWeek({
                     </span>
                     <span className="font-body text-xs text-gray-400">{dateStr}</span>
                     {isToday && (
-                      <span className="font-body text-[9px] font-bold text-sw-teal tracking-[0.18em] uppercase">
+                      <span className="font-body text-[10px] font-bold text-sw-teal tracking-[0.18em] uppercase">
                         Today
                       </span>
                     )}
@@ -473,7 +473,7 @@ export function StepEntryWeek({
                 </p>
                 <p
                   className={clsx(
-                    'font-body text-xs mt-0.5',
+                    'font-body text-xs mt-1',
                     dailySum >= 50_000 ? 'text-white/80' : 'text-gray-500'
                   )}
                 >

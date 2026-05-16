@@ -103,7 +103,7 @@ export function LeaderboardClient({ overall, weekStandings, currentUserId, prize
                 {weekData && (
                   <span
                     className={clsx(
-                      'font-body text-[9px] leading-none tracking-wider tabular-nums',
+                      'font-body text-[10px] leading-none tracking-wider tabular-nums',
                       isActive ? 'text-white/65' : 'text-current opacity-60'
                     )}
                   >
@@ -157,7 +157,7 @@ export function LeaderboardClient({ overall, weekStandings, currentUserId, prize
             </Card>
           ) : overallRest.length > 0 ? (
             <Card padded={false}>
-              <p className="font-body text-xs font-semibold text-gray-400 uppercase tracking-wider px-4 pt-4 pb-2">
+              <p className="font-body text-xs font-semibold text-gray-400 uppercase tracking-wider px-4 pt-4 pb-3">
                 Full Rankings
               </p>
               <div className="divide-y divide-gray-50">
@@ -286,7 +286,7 @@ export function LeaderboardClient({ overall, weekStandings, currentUserId, prize
                   </div>
                 ) : (
                   <>
-                    <p className="font-body text-xs font-semibold text-gray-400 uppercase tracking-wider px-4 pt-4 pb-2">
+                    <p className="font-body text-xs font-semibold text-gray-400 uppercase tracking-wider px-4 pt-4 pb-3">
                       {weekPodium.length >= 1 && !activeWeek.is_locked ? 'Full Rankings' : 'Rankings'}
                     </p>
                     <div className="divide-y divide-gray-50">
