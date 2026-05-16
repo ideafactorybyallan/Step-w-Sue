@@ -1,0 +1,118 @@
+'use client';
+import { useState, useEffect } from 'react';
+import { clsx } from 'clsx';
+import Link from 'next/link';
+import { ChevronRight } from 'lucide-react';
+import { StepEntryWeek } from '@/components/StepEntryWeek';
+import { MondayBanner } from '@/components/MondayBanner';
+import { SueSaysCard } from '@/components/SueSaysCard';
+import { isMondayEDT, isChallengeStarted, getWeekStatus, getCurrentWeekNumber, formatDate, WEEKS } from '@/lib/dates';
+import type { WeeklySubmission, SessionUser } from '@/lib/types';
+
+interface Props {
+  session: SessionUser;
+  submissions: WeeklySubmission[];
+}
+
+export function StepsClient({ session, submissions }: Props) {
+  const [selectedWeek, setSelectedWeek] = useState(1);
+  const isMonday = isMondayEDT();
+  const started = isChallengeStarted();
+
+  useEffect(() => {
+    for (let w = 1; w <= 4; w++) {
+      if (getWeekStatus(w) === 'active') { setSelectedWeek(w); break; }
+    }
+  }, []);
+
+  const getSubmissionForWeek = (w: number) =>
+    submissions.find((s) => s.week_number === w) ?? null;
+
+  return (
+    <div className="flex flex-col">
+      {isMonday && started && (getCurrentWeekNumber() ?? 0) > 1 && <MondayBanner />}
+
+      {/* Header */}
+      <div className="bg-navy px-6 pt-[max(2.5rem,calc(env(safe-area-inset-top)+1rem))] pb-6 relative overflow-hidden">
+        <div className="absolute -top-8 -left-8 w-40 h-40 bg-sw-teal/10 rounded-full blur-3xl pointer-events-none" />
+        <p className="font-body text-sw-teal text-xs font-bold tracking-widest uppercase mb-1">
+          My Progress
+        </p>
+        <p className="font-display text-sw-pink text-5xl leading-none">MY</p>
+        <p className="font-display text-white text-4xl leading-none mb-2">STEPS</p>
+        <p className="font-body text-white/60 text-sm">
+          Logged in as <span className="text-white font-semibold">{session.nickname ?? session.first_name}</span>
+        </p>
+      </div>
+
+      <div className="px-4 pt-4 pb-6 space-y-4">
+        {/* Observer mode — friendly notice in place of the form */}
+        {session.is_observer ? (
+          <>
+            <div className="bg-white rounded-2xl p-8 text-center shadow-card">
+              <p className="text-5xl mb-3" aria-hidden="true">👀</p>
+              <p className="font-display text-navy text-2xl">YOU&rsquo;RE OBSERVING</p>
+              <p className="font-body text-sm text-gray-500 mt-2 max-w-xs mx-auto leading-relaxed">
+                Step submission is for paying participants only. Sit back, cheer them on, and enjoy the drama.
+              </p>
+              <Link
+                href="/leaderboard"
+                className="inline-flex items-center gap-1 mt-4 font-body text-sw-pink font-semibold text-sm hover:underline"
+              >
+                View standings <ChevronRight size={16} />
+              </Link>
+            </div>
+            <SueSaysCard />
+          </>
+        ) : (
+        <>
+        {/* Week selector — card style */}
+        <div className="grid grid-cols-4 gap-2">
+          {[1, 2, 3, 4].map((w) => {
+            const status = getWeekStatus(w);
+            const sub = getSubmissionForWeek(w);
+            const isActive = selectedWeek === w;
+            const chipEmoji = sub?.is_locked ? '🔒' : sub ? '✅' : status === 'active' ? '🟢' : status === 'upcoming' ? '📅' : '⏰';
+            const chipLabel = sub?.is_locked ? 'Locked' : sub ? 'Done' : status === 'active' ? 'Active' : status === 'upcoming' ? 'Soon' : 'Overdue';
+            return (
+              <button
+                key={w}
+                onClick={() => setSelectedWeek(w)}
+                className={clsx(
+                  'rounded-2xl p-4 text-center transition-all duration-150 border-2 active:scale-[0.95]',
+                  isActive
+                    ? 'bg-navy border-navy shadow-btn'
+                    : 'bg-white border-transparent shadow-card hover:shadow-card-hover'
+                )}
+              >
+                <p className={clsx('font-display text-lg leading-tight', isActive ? 'text-white' : 'text-navy')}>
+                  W{w}
+                </p>
+                <p className="text-xl mt-0.5">{chipEmoji}</p>
+                <p className={clsx('font-body text-xs mt-0.5', isActive ? 'text-white/70' : 'text-gray-400')}>
+                  {chipLabel}
+                </p>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Selected week date range */}
+        <p className="font-body text-xs text-gray-400 text-center mt-1">
+          Week {selectedWeek}: {formatDate(WEEKS[selectedWeek - 1].start)} – {formatDate(WEEKS[selectedWeek - 1].end)}
+        </p>
+
+        <StepEntryWeek
+          weekNumber={selectedWeek}
+          submission={getSubmissionForWeek(selectedWeek)}
+          userId={session.id}
+          previewMode={!started}
+        />
+
+        <SueSaysCard />
+        </>
+        )}
+      </div>
+    </div>
+  );
+}

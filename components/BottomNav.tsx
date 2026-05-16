@@ -33,7 +33,7 @@ export function BottomNav() {
 
   return (
     <nav className="fixed bottom-0 inset-x-0 bg-navy/95 backdrop-blur-sm border-t border-white/10 z-50 safe-area-pb">
-      <div className="flex">
+      <div className="flex relative">
         {tabs.map(({ href, label, Icon }) => {
           const active = activePath.startsWith(href);
           return (
@@ -42,14 +42,16 @@ export function BottomNav() {
               href={href}
               prefetch
               onClick={() => handleTap(href)}
-              className="flex-1 flex flex-col items-center justify-center pt-2 pb-3 gap-0.5 min-h-[60px] transition-transform duration-100 active:scale-[0.92] active:opacity-70"
+              className="relative flex-1 flex flex-col items-center justify-center pt-1.5 pb-1.5 gap-1 min-h-[48px] transition-transform duration-100 active:scale-[0.92] active:opacity-70"
             >
-              <div className={clsx(
-                'w-8 h-0.5 rounded-full mb-1 transition-all duration-150',
-                active ? 'bg-sw-pink' : 'bg-transparent'
-              )} />
+              {active && (
+                <span
+                  aria-hidden="true"
+                  className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full bg-sw-pink"
+                />
+              )}
               <Icon
-                size={24}
+                size={20}
                 strokeWidth={active ? 2.5 : 1.8}
                 className={clsx(
                   'transition-colors duration-150',
@@ -57,7 +59,7 @@ export function BottomNav() {
                 )}
               />
               <span className={clsx(
-                'text-xs font-body transition-colors duration-150',
+                'text-[11px] font-body leading-none transition-colors duration-150',
                 active ? 'text-sw-pink font-semibold' : 'text-white/45 font-normal'
               )}>
                 {label}
