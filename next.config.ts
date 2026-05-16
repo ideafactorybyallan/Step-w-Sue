@@ -15,13 +15,6 @@ const nextConfig: NextConfig = {
         source: '/manifest.json',
         headers: [{ key: 'Content-Type', value: 'application/manifest+json' }],
       },
-      {
-        source: '/sw.js',
-        headers: [
-          { key: 'Content-Type', value: 'application/javascript' },
-          { key: 'Service-Worker-Allowed', value: '/' },
-        ],
-      },
     ];
   },
 };

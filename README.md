@@ -13,6 +13,7 @@
 - Log daily or weekly steps
 - See live leaderboards — overall and weekly
 - Compete for cash prizes ($40 buy-in per person)
+- Sit-out family members can join as **observers** (free, no buy-in, hidden from the leaderboard) to follow standings without competing
 - Works on iPhone Safari, installable to home screen as a PWA
 
 ---
@@ -31,10 +32,16 @@
 
 ### Step 2 — Set up the database
 
+**Fresh install (most people):**
+
 1. In Supabase, go to **SQL Editor → New Query**
 2. Copy the entire contents of `supabase/schema.sql` in this repo
 3. Paste it and click **Run**
 4. You should see "Success" — 5 tables created
+
+**Upgrading an existing install (already had users from a previous run):**
+
+Don't re-run `schema.sql` — it would wipe your data. Instead, open `supabase/migrations/` and run only the files newer than what you've already applied, in order. See `supabase/MIGRATIONS.md` for the history table.
 
 **Optional:** If you want test data to make the leaderboard look populated before anyone joins, also run `supabase/seed.sql`. Delete the test accounts from `/admin` before going live.
 
@@ -51,7 +58,7 @@
 | `SUPABASE_SERVICE_ROLE_KEY` | Your Supabase service_role key |
 | `JWT_SECRET` | A random string, 32+ characters (use a password manager to generate) |
 | `ADMIN_PASSWORD` | A password you'll remember — for accessing `/admin` |
-| `CHALLENGE_PASSWORD` | `Bluejays` |
+| `CHALLENGE_PASSWORD` | Pick a word your family knows (e.g. `Bluejays`) — required, no default |
 | `NEXT_PUBLIC_APP_URL` | Your Vercel URL (add after first deploy) |
 
 5. Click **Deploy**
@@ -72,7 +79,7 @@ This creates the PWA icon files in `public/icons/`. Commit and push them so Verc
 ## Sharing With Family
 
 1. Share your Vercel URL in the family group chat
-2. Tell everyone the challenge password: **Bluejays**
+2. Tell everyone the challenge password (whatever you set `CHALLENGE_PASSWORD` to)
 3. iPhone instructions for the home screen experience:
    - Open the link in **Safari** (not Chrome!)
    - Tap the **Share** button (square with arrow pointing up)
@@ -104,10 +111,11 @@ Enter your `ADMIN_PASSWORD` to access the admin dashboard.
 
 ### Joining (first time)
 1. Open the app → "Join the Challenge"
-2. Enter the challenge password (`Bluejays`)
-3. Enter your name + optional nickname
-4. Set a 4–6 digit PIN
-5. You're in! The app remembers you on this device for 30 days.
+2. Choose **Join** (paid, competing) or **Observe** (free, watching only)
+3. Enter the challenge password
+4. Enter your name + optional nickname
+5. Set a 4-digit PIN
+6. You're in! The app remembers you on this device for 30 days.
 
 ### Logging steps (weekly, by Monday midnight)
 1. Tap **My Steps** tab
@@ -147,7 +155,7 @@ Enter your `ADMIN_PASSWORD` to access the admin dashboard.
 - **No email/push notifications** — submission reminders are in-app only (Monday banner)
 - **Icons are generated programmatically** — replace with proper artwork for a polished look
 - **No real-time auto-refresh** — leaderboard updates when you navigate to it or reload
-- **Tied steps:** whoever submitted first wins
+- **Tied steps:** broken by earliest submission, then by a stable internal ID — rankings never flip on refresh
 
 ---
 

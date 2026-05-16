@@ -28,22 +28,6 @@ export interface WeeklySubmission {
   is_locked: boolean;
 }
 
-export interface WeekConfig {
-  week_number: number;
-  start_date: string;
-  end_date: string;
-  submission_deadline: string;
-  is_locked: boolean;
-  winner_override_id: string | null;
-}
-
-export interface Announcement {
-  id: string;
-  message: string;
-  created_at: string;
-  is_active: boolean;
-}
-
 export interface SessionUser {
   id: string;
   first_name: string;
@@ -73,15 +57,3 @@ export interface WeekLeaderboardEntry {
   is_winner: boolean;
 }
 
-export interface WeekStanding {
-  entries: WeekLeaderboardEntry[];
-  is_locked: boolean;
-  winner: Participant | null;
-  status: 'upcoming' | 'active' | 'past';
-}
-
-export interface LeaderboardData {
-  overall: LeaderboardEntry[];
-  weeks: Record<number, WeekStanding>;
-  participant_count: number;
-}
