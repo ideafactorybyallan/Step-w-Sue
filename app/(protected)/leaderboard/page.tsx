@@ -8,7 +8,7 @@ import type { Participant } from '@/lib/types';
 
 async function getLeaderboardData() {
   const [pRes, sRes, wRes] = await Promise.all([
-    supabase.from('participants').select('*').eq('is_active', true).order('first_name'),
+    supabase.from('participants').select('*').eq('is_active', true).eq('is_observer', false).order('first_name'),
     supabase.from('weekly_submissions').select('*'),
     supabase.from('weeks').select('*').order('week_number'),
   ]);

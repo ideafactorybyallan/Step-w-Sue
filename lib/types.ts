@@ -5,6 +5,7 @@ export interface Participant {
   nickname: string | null;
   created_at: string;
   is_active: boolean;
+  is_observer: boolean;
 }
 
 export interface DailyStep {
@@ -48,6 +49,7 @@ export interface SessionUser {
   first_name: string;
   last_name: string;
   nickname: string | null;
+  is_observer: boolean;
 }
 
 export interface LeaderboardEntry {

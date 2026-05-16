@@ -21,6 +21,9 @@ export async function GET() {
 export async function POST(request: Request) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+  if (session.is_observer) {
+    return NextResponse.json({ error: 'Observers cannot submit steps.' }, { status: 403 });
+  }
 
   const body = await request.json();
   const week_number: number = parseInt(body.week_number ?? 0);

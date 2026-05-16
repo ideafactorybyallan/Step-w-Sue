@@ -31,6 +31,9 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+  if (session.is_observer) {
+    return NextResponse.json({ error: 'Observers cannot submit steps.' }, { status: 403 });
+  }
 
   const body = await request.json();
   const entry_date: string = body.entry_date ?? '';

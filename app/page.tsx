@@ -81,7 +81,7 @@ export default async function WelcomePage() {
 
         <Link href="/join">
           <button className="w-full bg-sw-pink text-white font-display text-3xl py-5 rounded-2xl shadow-btn hover:shadow-btn-hover hover:-translate-y-0.5 active:translate-y-0 transition-all duration-150 tracking-wide">
-            TAP HERE, JOIN THE CHALLENGE 🏃
+            JOIN OR OBSERVE 🏃
           </button>
         </Link>
 

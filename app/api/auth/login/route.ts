@@ -33,6 +33,7 @@ export async function POST(request: Request) {
     first_name: participant.first_name,
     last_name: participant.last_name,
     nickname: participant.nickname,
+    is_observer: Boolean(participant.is_observer),
   });
 
   const res = NextResponse.json({ success: true });
