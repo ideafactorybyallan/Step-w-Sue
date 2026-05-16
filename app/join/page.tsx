@@ -7,20 +7,23 @@ import { PinInput } from '@/components/PinInput';
 import { ChevronLeft } from 'lucide-react';
 import { clsx } from 'clsx';
 
-type Step = 'password' | 'account';
+type Step = 'mode' | 'password' | 'account';
 type AccountStage = 'names' | 'pin' | 'confirm_pin';
+type JoinMode = 'join' | 'observe';
 
-const PROGRESS_STEPS = ['Password', 'Your Info', 'Set PIN'];
+const PROGRESS_STEPS = ['Mode', 'Password', 'Your Info', 'Set PIN'];
 
 function progressIndex(step: Step, accountStage: AccountStage): number {
-  if (step === 'password') return 0;
-  if (accountStage === 'names') return 1;
-  return 2;
+  if (step === 'mode') return 0;
+  if (step === 'password') return 1;
+  if (accountStage === 'names') return 2;
+  return 3;
 }
 
 export default function JoinPage() {
   const router = useRouter();
-  const [step, setStep] = useState<Step>('password');
+  const [step, setStep] = useState<Step>('mode');
+  const [joinMode, setJoinMode] = useState<JoinMode | null>(null);
   const [challengePassword, setChallengePassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -88,6 +91,7 @@ export default function JoinPage() {
           last_name: lastName,
           nickname: nickname || undefined,
           pin,
+          is_observer: joinMode === 'observe',
         }),
       });
       if (!res.ok) {
@@ -111,7 +115,9 @@ export default function JoinPage() {
           </Link>
           <p className="font-body text-white/60 text-sm">Step w Sue</p>
         </div>
-        <p className="font-display text-sw-pink text-5xl leading-none">JOIN</p>
+        <p className="font-display text-sw-pink text-5xl leading-none">
+          {joinMode === 'observe' ? 'OBSERVE' : 'JOIN'}
+        </p>
         <p className="font-display text-white text-3xl leading-none">THE CHALLENGE</p>
       </div>
 
@@ -150,6 +156,56 @@ export default function JoinPage() {
       </div>
 
       <div className="flex-1 px-6 py-8">
+
+        {/* ── Step 0: choose mode ─────────────────────────────────────────── */}
+        {step === 'mode' && (
+          <div className="space-y-5 animate-fade-up">
+            <div className="text-center">
+              <p className="text-4xl mb-2">🤔</p>
+              <p className="font-display text-navy text-2xl">JOINING OR OBSERVING?</p>
+              <p className="font-body text-sm text-gray-500 mt-1">
+                You can compete for prizes — or just cheer from the sidelines.
+              </p>
+            </div>
+
+            <button
+              onClick={() => { setJoinMode('join'); setError(''); setStep('password'); }}
+              className="w-full bg-white border-2 border-sw-pink rounded-2xl p-5 text-left shadow-card hover:shadow-card-hover transition-all active:scale-[0.99]"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <span className="text-3xl">🏃</span>
+                <div className="flex-1">
+                  <p className="font-display text-navy text-2xl leading-none">JOIN</p>
+                  <p className="font-body text-xs text-sw-pink font-semibold mt-0.5">$40 buy-in · compete for prizes</p>
+                </div>
+              </div>
+              <p className="font-body text-sm text-gray-500">
+                Submit weekly steps, climb the leaderboard, win cash. The full experience.
+              </p>
+            </button>
+
+            <button
+              onClick={() => { setJoinMode('observe'); setError(''); setStep('password'); }}
+              className="w-full bg-white border-2 border-navy/15 rounded-2xl p-5 text-left shadow-card hover:shadow-card-hover transition-all active:scale-[0.99]"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <span className="text-3xl">👀</span>
+                <div className="flex-1">
+                  <p className="font-display text-navy text-2xl leading-none">OBSERVE</p>
+                  <p className="font-body text-xs text-navy/50 font-semibold mt-0.5">Free · watch &amp; cheer only</p>
+                </div>
+              </div>
+              <p className="font-body text-sm text-gray-500">
+                Follow the standings without paying or stepping. Pure spectator mode.
+              </p>
+            </button>
+
+            <p className="font-body text-xs text-gray-400 text-center pt-1">
+              Already have an account?{' '}
+              <Link href="/login" className="text-sw-pink font-semibold">Sign in here</Link>
+            </p>
+          </div>
+        )}
 
         {/* ── Step 1: challenge password ─────────────────────────────────── */}
         {step === 'password' && (
@@ -203,7 +259,9 @@ export default function JoinPage() {
                   <p className="text-4xl mb-2">👋</p>
                   <p className="font-display text-navy text-2xl">WHO ARE YOU?</p>
                   <p className="font-body text-sm text-gray-500 mt-1">
-                    This is how you'll appear on the leaderboard.
+                    {joinMode === 'observe'
+                      ? 'So we know who is watching the action.'
+                      : "This is how you'll appear on the leaderboard."}
                   </p>
                 </div>
 

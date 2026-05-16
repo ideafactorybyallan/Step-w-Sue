@@ -18,7 +18,7 @@ import {
 
 async function getHomeData(currentUserId: string | null) {
   const [pRes, sRes, aRes] = await Promise.all([
-    supabase.from('participants').select('*').eq('is_active', true),
+    supabase.from('participants').select('*').eq('is_active', true).eq('is_observer', false),
     supabase.from('weekly_submissions').select('*'),
     supabase
       .from('announcements')
@@ -120,6 +120,7 @@ export default async function HomePage() {
   const isMonday = isMondayEDT();
   const challengeStarted = isChallengeStarted();
   const challengeOver = isChallengeOver();
+  const isObserver = Boolean(session?.is_observer);
 
   const overallLeaderName = overallLeader
     ? overallLeader.participant.nickname ?? `${overallLeader.participant.first_name} ${overallLeader.participant.last_name}`
@@ -180,7 +181,13 @@ export default async function HomePage() {
 
         {/* Status row */}
         <div className="flex items-center gap-3 mt-3 flex-wrap">
-          {challengeStarted && userStats && (
+          {isObserver && (
+            <div className="flex items-center gap-1.5 bg-white/10 border border-white/20 rounded-full px-3 py-1">
+              <span className="text-sm" aria-hidden="true">👀</span>
+              <span className="font-body text-white font-semibold text-xs tracking-wide">OBSERVER</span>
+            </div>
+          )}
+          {!isObserver && challengeStarted && userStats && (
             <div className="flex items-center gap-1.5 bg-sw-teal/20 border border-sw-teal/30 rounded-full px-3 py-1">
               <span className="w-1.5 h-1.5 rounded-full bg-sw-teal animate-pulse shrink-0" />
               <span className="font-body text-white font-semibold text-xs">#{userStats.rank} of {total}</span>
@@ -215,7 +222,7 @@ export default async function HomePage() {
         {!challengeStarted && <CountdownCard />}
 
         {/* Stat hero card */}
-        {challengeStarted && userStats && (
+        {!isObserver && challengeStarted && userStats && (
           <div className="bg-white rounded-2xl shadow-card p-5">
             <div className="flex items-center justify-between mb-3">
               <p className="font-display text-sw-pink text-6xl leading-none">
@@ -254,7 +261,7 @@ export default async function HomePage() {
         )}
 
         {/* Gap / motivation card */}
-        {challengeStarted && userStats && total > 1 && (
+        {!isObserver && challengeStarted && userStats && total > 1 && (
           <div className={`bg-white rounded-2xl p-4 border-l-4 ${
             gapState === 'leading' ? 'border-gold' :
             gapState === 'close' ? 'border-sw-teal' :
@@ -293,22 +300,38 @@ export default async function HomePage() {
           </div>
         )}
 
-        {/* ADD MY STEPS — primary CTA */}
-        <Link href="/steps">
-          <div className="relative overflow-hidden bg-gradient-pink rounded-2xl p-5 flex items-center justify-between shadow-btn hover:shadow-btn-hover hover:-translate-y-0.5 active:translate-y-0 transition-all duration-150">
-            <div className="absolute -top-8 -right-8 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none" />
-            <div className="relative">
-              <p className="font-display text-white text-2xl leading-tight drop-shadow-sm">ADD MY STEPS</p>
-              <p className="font-body text-white/85 text-sm mt-0.5">
-                {isMonday ? '🚨 Submit today! Deadline is midnight.' : 'Track your daily progress 👟'}
-              </p>
+        {/* Primary CTA — participants get ADD MY STEPS, observers get VIEW STANDINGS */}
+        {isObserver ? (
+          <Link href="/leaderboard">
+            <div className="relative overflow-hidden bg-gradient-ocean rounded-2xl p-5 flex items-center justify-between shadow-btn hover:shadow-btn-hover hover:-translate-y-0.5 active:translate-y-0 transition-all duration-150">
+              <div className="absolute -top-8 -right-8 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+              <div className="relative">
+                <p className="font-display text-white text-2xl leading-tight drop-shadow-sm">VIEW STANDINGS</p>
+                <p className="font-body text-white/85 text-sm mt-0.5">You&apos;re observing — cheer them on!</p>
+              </div>
+              <div className="relative flex items-center gap-1">
+                <span className="text-4xl" aria-hidden="true">👀</span>
+                <ChevronRight size={20} className="text-white/80" />
+              </div>
             </div>
-            <div className="relative flex items-center gap-1">
-              <span className="text-4xl" aria-hidden="true">👟</span>
-              <ChevronRight size={20} className="text-white/80" />
+          </Link>
+        ) : (
+          <Link href="/steps">
+            <div className="relative overflow-hidden bg-gradient-pink rounded-2xl p-5 flex items-center justify-between shadow-btn hover:shadow-btn-hover hover:-translate-y-0.5 active:translate-y-0 transition-all duration-150">
+              <div className="absolute -top-8 -right-8 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+              <div className="relative">
+                <p className="font-display text-white text-2xl leading-tight drop-shadow-sm">ADD MY STEPS</p>
+                <p className="font-body text-white/85 text-sm mt-0.5">
+                  {isMonday ? '🚨 Submit today! Deadline is midnight.' : 'Track your daily progress 👟'}
+                </p>
+              </div>
+              <div className="relative flex items-center gap-1">
+                <span className="text-4xl" aria-hidden="true">👟</span>
+                <ChevronRight size={20} className="text-white/80" />
+              </div>
             </div>
-          </div>
-        </Link>
+          </Link>
+        )}
 
         {/* Community strip — challengers + group total */}
         {challengeStarted && (

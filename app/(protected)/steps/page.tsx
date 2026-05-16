@@ -1,6 +1,8 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { clsx } from 'clsx';
+import Link from 'next/link';
+import { ChevronRight } from 'lucide-react';
 import { StepEntryWeek } from '@/components/StepEntryWeek';
 import { MondayBanner } from '@/components/MondayBanner';
 import { SueSaysCard } from '@/components/SueSaysCard';
@@ -63,6 +65,26 @@ export default function StepsPage() {
       </div>
 
       <div className="px-4 pt-4 pb-6 space-y-4">
+        {/* Observer mode — friendly notice in place of the form */}
+        {me?.is_observer ? (
+          <>
+            <div className="bg-white rounded-2xl p-8 text-center shadow-card">
+              <p className="text-5xl mb-3" aria-hidden="true">👀</p>
+              <p className="font-display text-navy text-2xl">YOU&apos;RE OBSERVING</p>
+              <p className="font-body text-sm text-gray-500 mt-2 max-w-xs mx-auto leading-relaxed">
+                Step submission is for paying participants only. Sit back, cheer them on, and enjoy the drama.
+              </p>
+              <Link
+                href="/leaderboard"
+                className="inline-flex items-center gap-1 mt-4 font-body text-sw-pink font-semibold text-sm hover:underline"
+              >
+                View standings <ChevronRight size={16} />
+              </Link>
+            </div>
+            <SueSaysCard />
+          </>
+        ) : (
+        <>
         {/* Week selector — card style */}
         <div className="grid grid-cols-4 gap-2">
           {[1, 2, 3, 4].map((w) => {
@@ -114,6 +136,8 @@ export default function StepsPage() {
         ) : null}
 
         <SueSaysCard />
+        </>
+        )}
       </div>
     </div>
   );

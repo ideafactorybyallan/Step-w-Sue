@@ -12,6 +12,7 @@ export async function createSessionToken(user: SessionUser): Promise<string> {
     first_name: user.first_name,
     last_name: user.last_name,
     nickname: user.nickname,
+    is_observer: user.is_observer,
   })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
@@ -27,6 +28,7 @@ export async function verifySessionToken(token: string): Promise<SessionUser | n
       first_name: payload.first_name as string,
       last_name: payload.last_name as string,
       nickname: (payload.nickname as string) ?? null,
+      is_observer: Boolean(payload.is_observer),
     };
   } catch {
     return null;

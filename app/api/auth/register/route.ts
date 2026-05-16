@@ -17,6 +17,7 @@ export async function POST(request: Request) {
   const last_name: string = (body.last_name ?? '').trim();
   const nickname: string | null = (body.nickname ?? '').trim() || null;
   const pin: string = String(body.pin ?? '').trim();
+  const is_observer: boolean = Boolean(body.is_observer);
 
   if (!first_name || !last_name) {
     return NextResponse.json({ error: 'First and last name are required.' }, { status: 400 });
@@ -46,7 +47,7 @@ export async function POST(request: Request) {
 
   const { data: participant, error } = await supabase
     .from('participants')
-    .insert({ first_name, last_name, nickname, pin_hash })
+    .insert({ first_name, last_name, nickname, pin_hash, is_observer })
     .select()
     .single();
 
@@ -60,6 +61,7 @@ export async function POST(request: Request) {
     first_name: participant.first_name,
     last_name: participant.last_name,
     nickname: participant.nickname,
+    is_observer: Boolean(participant.is_observer),
   });
 
   const res = NextResponse.json({ success: true });
