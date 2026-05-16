@@ -22,7 +22,7 @@ export function BottomNav() {
             <Link
               key={href}
               href={href}
-              className="flex-1 flex flex-col items-center justify-center pt-2 pb-3 gap-0.5 min-h-[60px] transition-opacity"
+              className="flex-1 flex flex-col items-center justify-center pt-2 pb-3 gap-0.5 min-h-[60px] transition-opacity active:opacity-60"
             >
               {/* Active indicator bar */}
               <div className={clsx(
@@ -30,11 +30,11 @@ export function BottomNav() {
                 active ? 'bg-sw-pink' : 'bg-transparent'
               )} />
               <Icon
-                size={22}
+                size={24}
                 strokeWidth={active ? 2.5 : 1.8}
                 className={clsx(
-                  'transition-all duration-200',
-                  active ? 'text-sw-pink scale-110' : 'text-white/45'
+                  'transition-colors duration-200',
+                  active ? 'text-sw-pink' : 'text-white/45'
                 )}
               />
               <span className={clsx(

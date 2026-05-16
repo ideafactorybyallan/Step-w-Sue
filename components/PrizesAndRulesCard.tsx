@@ -71,7 +71,7 @@ export function PrizesAndRulesCard({ participantCount }: Props) {
             bg="bg-gold/10" textColor="text-gold-dark" accentColor="bg-gold/25"
           />
           <PrizeTier
-            icon="📅" label="Weekly Prize × 4" sub="Most steps that week"
+            icon="📅" label="Weekly Prize × 4" sub="Each week has its own winner"
             amount={fmt(prizes.weeklyPrizePerWeek)}
             bg="bg-sw-teal/8" textColor="text-sw-teal-dark" accentColor="bg-sw-teal/20"
           />
@@ -82,8 +82,8 @@ export function PrizesAndRulesCard({ participantCount }: Props) {
               <p className="text-xs text-gray-500">Submit by Monday midnight after each week.</p>
             </RuleSection>
             <RuleSection icon="💰" title="Buy-In" accent="border-gold" bg="bg-gold/8">
-              <p>$20 overall + $20 weekly ($5 × 4)</p>
-              <p className="font-semibold text-sw-pink">$40 total per person</p>
+              <p className="font-semibold text-sw-pink">$40 per person</p>
+              <p>$20 overall prize + $20 weekly prizes ($5 × 4 weeks)</p>
             </RuleSection>
             <RuleSection icon="🗓️" title="Weekly Schedule" accent="border-sw-teal" bg="bg-sw-teal/8">
               <p className="text-xs">Wk 1 · May 18–24 · submit May 25</p>
@@ -97,7 +97,7 @@ export function PrizesAndRulesCard({ participantCount }: Props) {
               <p className="text-xs text-gray-500">Prize pool scales with participants.</p>
             </RuleSection>
             <RuleSection icon="📝" title="Submissions" accent="border-navy" bg="bg-navy/5">
-              <p>Daily steps or one weekly total.</p>
+              <p>Submit daily entries or a single weekly total — your choice.</p>
               <p className="text-xs text-gray-500">Late = still counts, but flagged ⏰</p>
             </RuleSection>
           </div>

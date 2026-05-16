@@ -316,7 +316,7 @@ export default async function HomePage() {
             </div>
           </Link>
         ) : (
-          <Link href="/steps">
+          <Link href="/steps" className="mt-2 block">
             <div className="relative overflow-hidden bg-gradient-pink rounded-2xl p-5 flex items-center justify-between shadow-btn hover:shadow-btn-hover hover:-translate-y-0.5 active:translate-y-0 transition-all duration-150">
               <div className="absolute -top-8 -right-8 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none" />
               <div className="relative">
@@ -324,11 +324,11 @@ export default async function HomePage() {
                 <p className="font-body text-white/85 text-sm mt-0.5">
                   {isMonday && currentWeek !== null && currentWeek > 1
                     ? '🚨 Submit today! Deadline is midnight.'
-                    : 'Track your daily progress 👟'}
+                    : 'Track your daily progress'}
                 </p>
               </div>
               <div className="relative flex items-center gap-1">
-                <span className="text-4xl" aria-hidden="true">👟</span>
+                <span className="text-4xl" aria-hidden="true">🏃</span>
                 <ChevronRight size={20} className="text-white/80" />
               </div>
             </div>
