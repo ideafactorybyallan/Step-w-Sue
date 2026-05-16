@@ -110,9 +110,16 @@ export default function JoinPage() {
       {/* Header */}
       <div className="bg-navy px-4 pt-12 pb-6">
         <div className="flex items-center gap-3 mb-4">
-          <Link href="/" className="text-white/60 hover:text-white transition-colors">
+          <button
+            onClick={() => {
+              if (step === 'mode') router.push('/');
+              else if (step === 'password') { setStep('mode'); setError(''); }
+              else if (step === 'account') { setStep('password'); setError(''); }
+            }}
+            className="text-white/60 hover:text-white transition-colors"
+          >
             <ChevronLeft size={24} />
-          </Link>
+          </button>
           <p className="font-body text-white/60 text-sm">Step w Sue</p>
         </div>
         <p className="font-display text-sw-pink text-5xl leading-none">

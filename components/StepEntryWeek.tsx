@@ -42,6 +42,7 @@ export function StepEntryWeek({ weekNumber, submission, userId, previewMode = fa
 
   useEffect(() => {
     const loadData = async () => {
+      if (previewMode) return;
       try {
         const res = await fetch(`/api/steps?week=${weekNumber}`);
         if (res.ok) {
