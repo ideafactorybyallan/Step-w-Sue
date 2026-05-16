@@ -90,7 +90,7 @@ export default function StepsPage() {
                     key={w}
                     onClick={() => setSelectedWeek(w)}
                     className={clsx(
-                      'rounded-2xl p-3 text-center transition-all duration-150 border-2',
+                      'rounded-2xl p-4 text-center transition-all duration-150 border-2',
                       isActive
                         ? 'bg-navy border-navy shadow-btn'
                         : 'bg-white border-transparent shadow-card hover:shadow-card-hover'
@@ -99,7 +99,7 @@ export default function StepsPage() {
                     <p className={clsx('font-display text-lg leading-tight', isActive ? 'text-white' : 'text-navy')}>
                       W{w}
                     </p>
-                    <p className="text-base mt-0.5">{chipEmoji}</p>
+                    <p className="text-xl mt-0.5">{chipEmoji}</p>
                     <p className={clsx('font-body text-xs mt-0.5', isActive ? 'text-white/70' : 'text-gray-400')}>
                       {chipLabel}
                     </p>
@@ -109,7 +109,7 @@ export default function StepsPage() {
             </div>
 
             {/* Selected week date range */}
-            <p className="font-body text-xs text-gray-400 text-center -mt-1">
+            <p className="font-body text-xs text-gray-400 text-center mt-1">
               Week {selectedWeek}: {formatDate(WEEKS[selectedWeek - 1].start)} – {formatDate(WEEKS[selectedWeek - 1].end)}
             </p>
 

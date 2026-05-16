@@ -1,20 +1,19 @@
 import Link from 'next/link';
-import { ArrowRight, TrendingUp, Award } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { getSession } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 import { SueSaysCard } from '@/components/SueSaysCard';
 import { MondayBanner } from '@/components/MondayBanner';
 import { CountdownCard } from '@/components/CountdownCard';
-import { PrizePoolCard } from '@/components/PrizePoolCard';
-import { RulesCard } from '@/components/RulesCard';
+import { PrizesAndRulesCard } from '@/components/PrizesAndRulesCard';
 import { LogoutButton } from '@/components/LogoutButton';
 import { avatarBg, avatarFg } from '@/lib/avatar';
 import {
   isMondayEDT,
   isChallengeStarted,
+  isChallengeOver,
+  getDaysRemaining,
   getCurrentWeekNumber,
-  WEEKS,
-  formatDate,
 } from '@/lib/dates';
 
 async function getHomeData(currentUserId: string | null) {
@@ -55,8 +54,8 @@ async function getHomeData(currentUserId: string | null) {
     });
 
   const overallLeader = sorted[0] ?? null;
+  const secondPlace = sorted[1] ?? null;
 
-  // Current user's stats
   const userIndex = currentUserId ? sorted.findIndex((s) => s.participant.id === currentUserId) : -1;
   const userStats = userIndex >= 0 ? {
     rank: userIndex + 1,
@@ -91,73 +90,116 @@ async function getHomeData(currentUserId: string | null) {
 
   const totalGroupSteps = submissions.reduce((sum, s) => sum + s.total_steps, 0);
 
-  return { total, overallLeader, weekLeader, weekLeaderSteps, currentWeek, announcements, userStats, totalGroupSteps };
+  return {
+    total,
+    overallLeader,
+    secondPlace,
+    weekLeader,
+    weekLeaderSteps,
+    currentWeek,
+    announcements,
+    userStats,
+    totalGroupSteps,
+  };
 }
-
 
 export default async function HomePage() {
   const session = await getSession();
-  const { total, overallLeader, weekLeader, weekLeaderSteps, currentWeek, announcements, userStats, totalGroupSteps } = await getHomeData(session?.id ?? null);
+  const {
+    total,
+    overallLeader,
+    secondPlace,
+    weekLeader,
+    weekLeaderSteps,
+    currentWeek,
+    announcements,
+    userStats,
+    totalGroupSteps,
+  } = await getHomeData(session?.id ?? null);
+
   const isMonday = isMondayEDT();
   const challengeStarted = isChallengeStarted();
+  const challengeOver = isChallengeOver();
 
   const overallLeaderName = overallLeader
     ? overallLeader.participant.nickname ?? `${overallLeader.participant.first_name} ${overallLeader.participant.last_name}`
+    : null;
+
+  const secondPlaceName = secondPlace
+    ? secondPlace.participant.nickname ?? `${secondPlace.participant.first_name} ${secondPlace.participant.last_name}`
     : null;
 
   const weekLeaderName = weekLeader
     ? weekLeader.nickname ?? `${weekLeader.first_name} ${weekLeader.last_name}`
     : null;
 
-  const currentWeekInfo = currentWeek ? WEEKS[currentWeek - 1] : null;
-  const userDisplayName = session?.nickname ?? session?.first_name ?? '';
   const userAvatarBg = session ? avatarBg(session.first_name, session.last_name) : '#E8234A';
   const userAvatarFg = avatarFg(userAvatarBg);
 
-  // Progress to leader percentage
   const progressPct = userStats && userStats.leaderSteps > 0
     ? Math.min(100, Math.round((userStats.steps / userStats.leaderSteps) * 100))
     : 0;
+
+  const gap = userStats ? Math.max(0, userStats.leaderSteps - userStats.steps) : 0;
+
+  const gapState: 'leading' | 'close' | 'behind' =
+    userStats?.rank === 1 ? 'leading' : progressPct >= 90 ? 'close' : 'behind';
+
+  const daysLeft = getDaysRemaining();
 
   return (
     <div className="flex flex-col">
       {isMonday && challengeStarted && <MondayBanner />}
 
-      {/* Hero header — premium gradient */}
-      <div className="bg-hero-navy px-6 pt-10 pb-8 relative overflow-hidden">
-        <div className="absolute top-4 right-4 text-7xl opacity-[0.08] select-none animate-float-slow" aria-hidden="true">🍁</div>
-        <div className="absolute bottom-2 left-2 text-6xl opacity-[0.06] select-none" aria-hidden="true">👟</div>
+      {/* Hero — personal identity */}
+      <div className="bg-hero-navy px-6 pt-8 pb-7 relative overflow-hidden">
+        <div className="absolute top-4 right-16 text-7xl opacity-[0.06] select-none pointer-events-none" aria-hidden="true">🍁</div>
 
-        {/* Logout button */}
-        <div className="absolute top-4 left-4">
+        {/* Top bar: logout · branding · avatar */}
+        <div className="flex items-center justify-between mb-6">
           <LogoutButton />
-        </div>
-
-        <p className="font-body text-sw-teal text-xs font-bold tracking-[0.25em] uppercase mb-1">
-          Sue's 3rd Official Annual
-        </p>
-        <p className="font-display text-white text-4xl leading-none">VICTORIA DAY</p>
-        <p className="font-display text-sw-pink text-6xl leading-none drop-shadow-lg">STEP</p>
-        <p className="font-display text-white text-3xl leading-none mb-4">CHALLENGE 2026</p>
-
-        {session && (
-          <div className="flex items-center gap-2.5 mt-1">
+          <p className="font-body text-white/25 text-xs tracking-[0.2em] uppercase">Step w Sue</p>
+          {session && (
             <div
-              className="w-9 h-9 rounded-full flex items-center justify-center font-body font-bold text-xs shrink-0 border-2 border-white/20"
+              className="w-11 h-11 rounded-full flex items-center justify-center font-body font-bold text-sm border-2 border-white/20 shrink-0"
               style={{ backgroundColor: userAvatarBg, color: userAvatarFg }}
             >
               {session.first_name.charAt(0).toUpperCase()}{session.last_name.charAt(0).toUpperCase()}
             </div>
-            <p className="font-body text-white/70 text-sm">
-              Welcome back, <span className="text-white font-semibold">{userDisplayName}</span> 👋
-            </p>
+          )}
+        </div>
+
+        {/* Name */}
+        {session && (
+          <div>
+            <p className="font-body text-white/40 text-xs tracking-[0.2em] uppercase mb-1">Welcome back</p>
+            <p className="font-display text-white text-5xl leading-none">{session.first_name.toUpperCase()}</p>
+            <p className="font-display text-sw-pink text-5xl leading-none">{session.last_name.toUpperCase()}</p>
           </div>
         )}
+
+        {/* Status row */}
+        <div className="flex items-center gap-3 mt-3 flex-wrap">
+          {challengeStarted && userStats && (
+            <div className="flex items-center gap-1.5 bg-sw-teal/20 border border-sw-teal/30 rounded-full px-3 py-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-sw-teal animate-pulse shrink-0" />
+              <span className="font-body text-white font-semibold text-xs">#{userStats.rank} of {total}</span>
+            </div>
+          )}
+          {challengeStarted && !challengeOver && currentWeek && (
+            <p className="font-body text-white/40 text-xs">
+              Week {currentWeek} · {daysLeft} day{daysLeft !== 1 ? 's' : ''} left
+            </p>
+          )}
+          {!challengeStarted && (
+            <p className="font-body text-white/40 text-xs">Victoria Day Step Challenge 2026</p>
+          )}
+        </div>
       </div>
 
       {/* Announcements */}
       {announcements.length > 0 && (
-        <div className="px-4 pt-4 space-y-2">
+        <div className="px-4 pt-3 space-y-2">
           {announcements.map((a) => (
             <div key={a.id} className="bg-gold/15 border border-gold/40 rounded-xl p-4 flex items-start gap-2 animate-fade-up">
               <span className="text-base shrink-0">📢</span>
@@ -167,166 +209,167 @@ export default async function HomePage() {
         </div>
       )}
 
-      <div className="px-4 pt-4 pb-6 space-y-4 stagger-children">
-        {/* Countdown */}
-        <CountdownCard />
+      <div className="px-4 pt-3 pb-6 space-y-3 stagger-children">
 
-        {/* Personal Stats Card */}
+        {/* Pre-challenge: countdown is the hero */}
+        {!challengeStarted && <CountdownCard />}
+
+        {/* Stat hero card */}
         {challengeStarted && userStats && (
-          <div className="relative overflow-hidden rounded-2xl bg-white shadow-card border border-gray-100/80">
-            <div className="bg-gradient-ocean px-5 py-3 flex items-center justify-between">
-              <p className="font-display text-white text-xl leading-tight">YOUR STATS</p>
-              <Award size={20} className="text-white/80" />
+          <div className="bg-white rounded-2xl shadow-card p-5">
+            <div className="flex items-center justify-between mb-3">
+              <p className="font-display text-sw-pink text-6xl leading-none">
+                {userStats.steps.toLocaleString()}
+              </p>
+              <span className="bg-navy text-white font-body font-bold text-sm rounded-full px-3 py-1 shrink-0">
+                #{userStats.rank}
+              </span>
             </div>
-            <div className="p-5">
-              <div className="grid grid-cols-3 gap-3 mb-4">
-                <div className="text-center">
-                  <p className="font-body text-xs text-gray-400 uppercase tracking-wider">Rank</p>
-                  <p className="font-display text-navy text-3xl leading-tight mt-1">
-                    #{userStats.rank}
-                  </p>
-                  <p className="font-body text-xs text-gray-400">of {total}</p>
-                </div>
-                <div className="text-center border-x border-gray-100">
-                  <p className="font-body text-xs text-gray-400 uppercase tracking-wider">Steps</p>
-                  <p className="font-display text-sw-pink text-3xl leading-tight mt-1">
-                    {userStats.steps > 999 ? `${(userStats.steps/1000).toFixed(1)}k` : userStats.steps.toLocaleString()}
-                  </p>
-                  <p className="font-body text-xs text-gray-400">total</p>
-                </div>
-                <div className="text-center">
-                  <p className="font-body text-xs text-gray-400 uppercase tracking-wider">Weeks</p>
-                  <p className="font-display text-sw-teal text-3xl leading-tight mt-1">
-                    {userStats.weeksSubmitted}<span className="text-gray-300 text-xl">/4</span>
-                  </p>
-                  <p className="font-body text-xs text-gray-400">done</p>
-                </div>
-              </div>
 
-              {/* Progress to leader */}
-              {userStats.rank > 1 && userStats.leaderSteps > 0 && (
-                <div>
-                  <div className="flex items-center justify-between text-xs mb-1.5">
-                    <span className="font-body text-gray-500 flex items-center gap-1">
-                      <TrendingUp size={12} />
-                      Progress to leader
-                    </span>
-                    <span className="font-body font-semibold text-navy">{progressPct}%</span>
-                  </div>
-                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+            {userStats.rank === 1 && (
+              <p className="font-body font-semibold text-gold-dark text-sm mb-3">👑 You&apos;re leading!</p>
+            )}
+
+            {userStats.rank > 1 && userStats.leaderSteps > 0 && (
+              <div className="mb-3">
+                <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-sw-pink to-gold rounded-full transition-all duration-500"
+                    style={{ width: `${progressPct}%` }}
+                  />
+                </div>
+                <p className="font-body text-xs text-gray-400 mt-1">
+                  {progressPct}% of {overallLeaderName}&apos;s total
+                </p>
+              </div>
+            )}
+
+            <div className="flex items-center justify-between border-t border-gray-50 pt-3">
+              <p className="font-body text-xs text-gray-400">{userStats.weeksSubmitted}/4 weeks submitted</p>
+              {!challengeOver && (
+                <p className="font-body text-xs text-gray-400">{daysLeft} day{daysLeft !== 1 ? 's' : ''} left</p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Gap / motivation card */}
+        {challengeStarted && userStats && total > 1 && (
+          <div className={`bg-white rounded-2xl p-4 border-l-4 ${
+            gapState === 'leading' ? 'border-gold' :
+            gapState === 'close' ? 'border-sw-teal' :
+            'border-sw-pink'
+          }`}>
+            <div className="flex items-start gap-3">
+              <span className="text-xl shrink-0 mt-0.5">
+                {gapState === 'leading' ? '👑' : gapState === 'close' ? '🎯' : '💪'}
+              </span>
+              <div className="flex-1 min-w-0">
+                <p className="font-display text-navy text-2xl leading-none">
+                  {gapState === 'leading' ? "YOU'RE LEADING" : gapState === 'close' ? 'SO CLOSE' : 'KEEP CLIMBING'}
+                </p>
+                <p className="font-body text-sm text-gray-500 mt-1 leading-relaxed">
+                  {gapState === 'leading' && secondPlaceName
+                    ? `${secondPlaceName} is ${gap.toLocaleString()} steps behind — don't slow down`
+                    : gapState === 'leading'
+                    ? "You're out in front — keep those steps coming!"
+                    : gapState === 'close'
+                    ? `${gap.toLocaleString()} steps behind ${overallLeaderName}`
+                    : `${progressPct}% of ${overallLeaderName}'s steps · ${gap.toLocaleString()} to catch up`
+                  }
+                </p>
+                {gapState !== 'leading' && (
+                  <div className="mt-2.5 h-1.5 bg-gray-100 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-gradient-sunset rounded-full transition-all duration-500"
+                      className={`h-full rounded-full transition-all duration-500 ${
+                        gapState === 'close' ? 'bg-sw-teal' : 'bg-gradient-to-r from-sw-pink to-gold'
+                      }`}
                       style={{ width: `${progressPct}%` }}
                     />
                   </div>
-                </div>
-              )}
-              {userStats.rank === 1 && (
-                <div className="text-center bg-gold/10 border border-gold/30 rounded-xl py-2">
-                  <p className="font-body text-sm text-gold-dark font-bold">👑 You're #1 — keep stepping!</p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Leader cards */}
-        {challengeStarted && (
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-white rounded-2xl shadow-card overflow-hidden">
-              <div className="h-1.5 bg-gradient-gold" />
-              <div className="p-4">
-                <p className="font-body text-xs text-gray-400 uppercase tracking-wider mb-2">🏆 Overall Leader</p>
-                {overallLeader && overallLeaderName ? (
-                  <>
-                    <p className="font-display text-navy text-lg leading-tight truncate">{overallLeaderName.toUpperCase()}</p>
-                    <p className="font-display text-gold-dark text-3xl leading-tight mt-1">{overallLeader.steps.toLocaleString()}</p>
-                    <p className="font-body text-xs text-gray-400">total steps</p>
-                  </>
-                ) : (
-                  <p className="font-body text-sm text-gray-400">No submissions yet!</p>
-                )}
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl shadow-card overflow-hidden">
-              <div className="h-1.5 bg-gradient-teal" />
-              <div className="p-4">
-                <p className="font-body text-xs text-gray-400 uppercase tracking-wider mb-2">
-                  ⭐ Week {currentWeek ?? ''} Leader
-                </p>
-                {weekLeader && weekLeaderName ? (
-                  <>
-                    <p className="font-display text-navy text-lg leading-tight truncate">{weekLeaderName.toUpperCase()}</p>
-                    <p className="font-display text-sw-teal text-3xl leading-tight mt-1">{weekLeaderSteps.toLocaleString()}</p>
-                    <p className="font-body text-xs text-gray-400">this week</p>
-                  </>
-                ) : (
-                  <p className="font-body text-sm text-gray-400">
-                    {currentWeek ? 'No submissions yet!' : 'Challenge complete'}
-                  </p>
                 )}
               </div>
             </div>
           </div>
         )}
 
-        {/* Participants + week info */}
-        <div className="bg-white rounded-2xl shadow-card p-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-full bg-gradient-navy flex items-center justify-center text-xl shadow-card">👥</div>
-            <div>
-              <p className="font-display text-navy text-2xl leading-tight">
-                {total} CHALLENGER{total !== 1 ? 'S' : ''}
-              </p>
-              <p className="font-body text-xs text-gray-400">in the 2026 challenge</p>
-            </div>
-          </div>
-          {currentWeekInfo && (
-            <div className="text-right">
-              <div className="inline-flex items-center gap-1.5 bg-sw-teal/10 border border-sw-teal/30 rounded-full px-2.5 py-0.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-sw-teal animate-pulse" />
-                <p className="font-body text-xs font-semibold text-sw-teal-dark">Week {currentWeek}</p>
-              </div>
-              <p className="font-body text-xs text-gray-400 mt-1">Until {formatDate(currentWeekInfo.end)}</p>
-            </div>
-          )}
-        </div>
-
-        {/* Group total steps */}
-        <div className="bg-white rounded-2xl shadow-card p-4 flex items-center gap-3">
-          <div className="w-11 h-11 rounded-full bg-sw-pink/10 flex items-center justify-center text-xl shrink-0">👟</div>
-          <div className="flex-1">
-            <p className="font-body text-xs text-gray-400 uppercase tracking-wider">Group Total Steps</p>
-            <p className="font-display text-sw-pink text-3xl leading-tight">
-              {totalGroupSteps > 0 ? totalGroupSteps.toLocaleString() : '—'}
-            </p>
-            <p className="font-body text-xs text-gray-400">
-              {totalGroupSteps > 0 ? 'combined steps by all challengers' : 'challenge starts soon — get ready!'}
-            </p>
-          </div>
-        </div>
-
-        {/* Quick action CTA */}
+        {/* ADD MY STEPS — primary CTA */}
         <Link href="/steps">
           <div className="relative overflow-hidden bg-gradient-pink rounded-2xl p-5 flex items-center justify-between shadow-btn hover:shadow-btn-hover hover:-translate-y-0.5 active:translate-y-0 transition-all duration-150">
             <div className="absolute -top-8 -right-8 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none" />
             <div className="relative">
               <p className="font-display text-white text-2xl leading-tight drop-shadow-sm">ADD MY STEPS</p>
               <p className="font-body text-white/85 text-sm mt-0.5">
-                {isMonday ? '🚨 Submit today! Deadline is midnight.' : 'Track your progress 👟'}
+                {isMonday ? '🚨 Submit today! Deadline is midnight.' : 'Track your daily progress 👟'}
               </p>
             </div>
             <div className="relative flex items-center gap-1">
-              <span className="text-4xl">👟</span>
-              <ArrowRight size={20} className="text-white/80" />
+              <span className="text-4xl" aria-hidden="true">👟</span>
+              <ChevronRight size={20} className="text-white/80" />
             </div>
           </div>
         </Link>
 
-        <PrizePoolCard participantCount={total} />
+        {/* Community strip — challengers + group total */}
+        {challengeStarted && (
+          <div className="bg-white rounded-2xl shadow-card p-4 flex items-center">
+            <div className="flex-1 text-center">
+              <p className="font-display text-navy text-3xl leading-none">{total}</p>
+              <p className="font-body text-xs text-gray-400 mt-0.5">Challenger{total !== 1 ? 's' : ''}</p>
+            </div>
+            <div className="w-px bg-gray-100 self-stretch" />
+            <div className="flex-1 text-center">
+              <p className="font-display text-sw-pink text-3xl leading-none">
+                {totalGroupSteps >= 1_000_000
+                  ? `${(totalGroupSteps / 1_000_000).toFixed(1)}M`
+                  : totalGroupSteps >= 1000
+                  ? `${(totalGroupSteps / 1000).toFixed(0)}K`
+                  : totalGroupSteps > 0
+                  ? totalGroupSteps.toLocaleString()
+                  : '—'}
+              </p>
+              <p className="font-body text-xs text-gray-400 mt-0.5">Group steps</p>
+            </div>
+          </div>
+        )}
+
+        {/* Standings preview */}
+        {challengeStarted && (overallLeaderName || weekLeaderName) && (
+          <Link href="/leaderboard">
+            <div className="bg-white rounded-2xl shadow-card p-4 hover:shadow-card-hover transition-shadow">
+              <div className="flex items-center justify-between mb-3">
+                <p className="font-body text-xs font-semibold text-gray-400 uppercase tracking-wider">Standings</p>
+                <ChevronRight size={16} className="text-gray-300" />
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-1 h-8 rounded-full bg-gold shrink-0" />
+                  <p className="font-body text-sm font-semibold text-navy flex-1 truncate">
+                    Overall · {overallLeaderName ?? 'No entries yet'}
+                  </p>
+                  <p className="font-display text-lg text-navy shrink-0">
+                    {overallLeader && overallLeader.steps > 0 ? overallLeader.steps.toLocaleString() : '—'}
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-1 h-8 rounded-full bg-sw-teal shrink-0" />
+                  <p className="font-body text-sm font-semibold text-navy flex-1 truncate">
+                    Week {currentWeek} · {weekLeaderName ?? 'No entries yet'}
+                  </p>
+                  <p className="font-display text-lg text-navy shrink-0">
+                    {weekLeaderSteps > 0 ? weekLeaderSteps.toLocaleString() : '—'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </Link>
+        )}
+
+        {/* Post-challenge: CountdownCard done state */}
+        {challengeOver && <CountdownCard />}
+
+        <PrizesAndRulesCard participantCount={total} />
         <SueSaysCard />
-        <RulesCard />
       </div>
     </div>
   );
