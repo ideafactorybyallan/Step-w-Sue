@@ -12,6 +12,7 @@ interface Participant {
   last_name: string;
   nickname: string | null;
   is_active: boolean;
+  is_observer: boolean;
   created_at: string;
   submissions: Array<{ week_number: number; total_steps: number; is_late: boolean; is_locked: boolean; submitted_at: string }>;
 }
@@ -151,7 +152,7 @@ export default function AdminDashboard() {
   };
 
   const tabs: { id: AdminTab; label: string; count?: number }[] = [
-    { id: 'participants', label: 'People', count: participants.filter((p) => p.is_active).length },
+    { id: 'participants', label: 'People', count: participants.filter((p) => p.is_active && !p.is_observer).length },
     { id: 'submissions', label: 'Steps', count: submissions.length },
     { id: 'weeks', label: 'Weeks' },
     { id: 'announcements', label: 'Announce', count: announcements.filter((a) => a.is_active).length },
@@ -217,7 +218,14 @@ export default function AdminDashboard() {
                 <div key={p.id} className={clsx('bg-white rounded-2xl p-4 shadow-sm', !p.is_active && 'opacity-50')}>
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <p className="font-body font-bold text-navy">{name}</p>
+                      <p className="font-body font-bold text-navy">
+                        {name}
+                        {p.is_observer && (
+                          <span className="ml-2 font-body text-xs font-semibold text-white bg-gray-400 rounded-full px-2 py-0.5 align-middle">
+                            Observer
+                          </span>
+                        )}
+                      </p>
                       {p.nickname && <p className="font-body text-xs text-gray-400">"{p.nickname}"</p>}
                       <p className="font-body text-xs text-gray-400 mt-1">
                         {p.submissions.length}/4 weeks submitted

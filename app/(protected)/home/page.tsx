@@ -150,7 +150,7 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col">
-      {isMonday && challengeStarted && <MondayBanner />}
+      {isMonday && challengeStarted && currentWeek !== null && currentWeek > 1 && <MondayBanner />}
 
       {/* Hero — personal identity */}
       <div className="bg-hero-navy px-6 pt-8 pb-7 relative overflow-hidden">
@@ -322,7 +322,9 @@ export default async function HomePage() {
               <div className="relative">
                 <p className="font-display text-white text-2xl leading-tight drop-shadow-sm">ADD MY STEPS</p>
                 <p className="font-body text-white/85 text-sm mt-0.5">
-                  {isMonday ? '🚨 Submit today! Deadline is midnight.' : 'Track your daily progress 👟'}
+                  {isMonday && currentWeek !== null && currentWeek > 1
+                    ? '🚨 Submit today! Deadline is midnight.'
+                    : 'Track your daily progress 👟'}
                 </p>
               </div>
               <div className="relative flex items-center gap-1">
@@ -374,15 +376,17 @@ export default async function HomePage() {
                     {overallLeader && overallLeader.steps > 0 ? overallLeader.steps.toLocaleString() : '—'}
                   </p>
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-1 h-8 rounded-full bg-sw-teal shrink-0" />
-                  <p className="font-body text-sm font-semibold text-navy flex-1 truncate">
-                    Week {currentWeek} · {weekLeaderName ?? 'No entries yet'}
-                  </p>
-                  <p className="font-display text-lg text-navy shrink-0">
-                    {weekLeaderSteps > 0 ? weekLeaderSteps.toLocaleString() : '—'}
-                  </p>
-                </div>
+                {currentWeek !== null && (
+                  <div className="flex items-center gap-3">
+                    <div className="w-1 h-8 rounded-full bg-sw-teal shrink-0" />
+                    <p className="font-body text-sm font-semibold text-navy flex-1 truncate">
+                      Week {currentWeek} · {weekLeaderName ?? 'No entries yet'}
+                    </p>
+                    <p className="font-display text-lg text-navy shrink-0">
+                      {weekLeaderSteps > 0 ? weekLeaderSteps.toLocaleString() : '—'}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </Link>

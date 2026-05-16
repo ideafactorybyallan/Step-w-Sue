@@ -6,14 +6,9 @@ import { ChevronRight } from 'lucide-react';
 import { StepEntryWeek } from '@/components/StepEntryWeek';
 import { MondayBanner } from '@/components/MondayBanner';
 import { SueSaysCard } from '@/components/SueSaysCard';
-import { isMondayEDT, isChallengeStarted, getWeekStatus, formatDate, WEEKS } from '@/lib/dates';
+import { isMondayEDT, isChallengeStarted, getWeekStatus, getCurrentWeekNumber, formatDate, WEEKS } from '@/lib/dates';
 import type { WeeklySubmission, SessionUser } from '@/lib/types';
 
-const STATUS_LABEL: Record<string, string> = {
-  active:   '🟢 Active',
-  upcoming: '📅 Soon',
-  past:     '⏰ Past',
-};
 
 export default function StepsPage() {
   const [me, setMe] = useState<SessionUser | null>(null);
@@ -47,7 +42,7 @@ export default function StepsPage() {
 
   return (
     <div className="flex flex-col">
-      {isMonday && started && <MondayBanner />}
+      {isMonday && started && (getCurrentWeekNumber() ?? 0) > 1 && <MondayBanner />}
 
       {/* Header */}
       <div className="bg-navy px-6 pt-10 pb-6 relative overflow-hidden">
