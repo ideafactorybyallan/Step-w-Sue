@@ -14,6 +14,7 @@ interface Props {
   weekNumber: number;
   submission: WeeklySubmission | null;
   userId: string;
+  previewMode?: boolean;
 }
 
 type EntryMode = 'daily' | 'weekly';
@@ -21,7 +22,7 @@ type EntryMode = 'daily' | 'weekly';
 const MAX_DAILY = 100_000;
 const MAX_WEEKLY = 200_000;
 
-export function StepEntryWeek({ weekNumber, submission, userId }: Props) {
+export function StepEntryWeek({ weekNumber, submission, userId, previewMode = false }: Props) {
   const week = WEEKS[weekNumber - 1];
   const days = getDaysInWeek(weekNumber);
   const status = getWeekStatus(weekNumber);
@@ -86,6 +87,7 @@ export function StepEntryWeek({ weekNumber, submission, userId }: Props) {
   };
 
   const handleSaveDayToDb = async (date: string) => {
+    if (previewMode) return;
     const steps = parseInt(dailySteps[date] || '0');
     if (isNaN(steps) || steps > MAX_DAILY) return;
     setSaveLoading(true);
@@ -112,6 +114,7 @@ export function StepEntryWeek({ weekNumber, submission, userId }: Props) {
   };
 
   const handleSubmit = async () => {
+    if (previewMode) return;
     if (totalForSubmit === 0) {
       setError('Please enter your steps before submitting.');
       return;
@@ -143,7 +146,7 @@ export function StepEntryWeek({ weekNumber, submission, userId }: Props) {
   };
 
   // Locked state
-  if (submission?.is_locked) {
+  if (!previewMode && submission?.is_locked) {
     return (
       <Card>
         <div className="text-center py-3">
@@ -165,7 +168,7 @@ export function StepEntryWeek({ weekNumber, submission, userId }: Props) {
   }
 
   // Already submitted (not locked)
-  if (submission && !success) {
+  if (!previewMode && submission && !success) {
     return (
       <Card>
         <div className="text-center py-3">
@@ -190,7 +193,7 @@ export function StepEntryWeek({ weekNumber, submission, userId }: Props) {
   }
 
   // Upcoming week
-  if (status === 'upcoming') {
+  if (!previewMode && status === 'upcoming') {
     return (
       <Card>
         <div className="text-center py-5">
@@ -243,8 +246,13 @@ export function StepEntryWeek({ weekNumber, submission, userId }: Props) {
         </p>
       </div>
 
-      {/* Deadline banner */}
-      {!isLate ? (
+      {/* Deadline / preview banner */}
+      {previewMode ? (
+        <div className="flex items-center gap-2 rounded-xl px-3 py-2 mb-4 text-xs font-body font-medium bg-navy/5 border border-navy/10 text-navy/50">
+          <span>🔒</span>
+          <span>Preview only — step submission opens May 18</span>
+        </div>
+      ) : !isLate ? (
         <div className={clsx(
           'flex items-center gap-2 rounded-xl px-3 py-2 mb-4 text-xs font-body font-medium',
           deadlineIsUrgent
@@ -397,10 +405,13 @@ export function StepEntryWeek({ weekNumber, submission, userId }: Props) {
         <Button
           onClick={handleSubmit}
           loading={loading}
-          disabled={totalForSubmit === 0 || hasInputError}
+          disabled={previewMode || totalForSubmit === 0 || hasInputError}
           size="lg"
         >
-          Submit {totalForSubmit > 0 ? totalForSubmit.toLocaleString() : ''} Steps for Week {weekNumber} 👟
+          {previewMode
+            ? 'Opens May 18 — Preview Only 🔒'
+            : `Submit ${totalForSubmit > 0 ? totalForSubmit.toLocaleString() : ''} Steps for Week ${weekNumber} 👟`
+          }
         </Button>
       </div>
     </Card>

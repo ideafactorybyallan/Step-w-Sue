@@ -78,7 +78,7 @@ export function LeaderboardClient({ overall, weekStandings, currentUserId, prize
                 key={String(id)}
                 onClick={() => setTab(id)}
                 className={clsx(
-                  'shrink-0 px-4 py-2 rounded-xl font-body font-semibold text-sm transition-all duration-200 flex items-center gap-1.5 whitespace-nowrap',
+                  'shrink-0 px-4 py-3 rounded-xl font-body font-semibold text-sm transition-all duration-200 flex items-center gap-1.5 whitespace-nowrap',
                   isActive
                     ? 'bg-navy text-white shadow-btn-navy'
                     : 'text-navy/60 hover:text-navy'
@@ -106,20 +106,9 @@ export function LeaderboardClient({ overall, weekStandings, currentUserId, prize
       {/* Overall tab */}
       {tab === 'overall' && (
         <div className="space-y-3 animate-fade-up">
-          {/* Prize banner */}
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-sunset shadow-card-lg">
-            <div className="absolute -top-8 -right-8 w-32 h-32 bg-white/15 rounded-full blur-2xl pointer-events-none" />
-            <div className="relative px-4 py-4 flex items-center gap-3">
-              <div className="w-14 h-14 rounded-2xl bg-white/25 backdrop-blur-sm flex items-center justify-center text-3xl shadow-inset-light shrink-0">
-                🏆
-              </div>
-              <div className="flex-1">
-                <p className="font-body text-white/90 text-xs uppercase tracking-[0.15em] font-semibold">Overall Champion Prize</p>
-                <p className="font-display text-white text-4xl leading-none drop-shadow-sm">${prizes.overallPrize}</p>
-                <p className="font-body text-white/80 text-xs mt-0.5">Most total steps wins the pot</p>
-              </div>
-            </div>
-          </div>
+          <p className="font-body text-xs text-gray-400 text-center">
+            🏆 Overall prize: ${prizes.overallPrize} — most steps after 4 weeks
+          </p>
 
           {/* Podium */}
           {overallPodium.length >= 1 && (

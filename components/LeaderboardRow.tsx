@@ -22,7 +22,7 @@ export function OverallLeaderboardRow({ entry, isCurrentUser }: OverallProps) {
   return (
     <div
       className={clsx(
-        'flex items-center gap-3 py-3.5 px-4',
+        'flex items-center gap-3.5 py-4 px-4',
         rank === 1 && 'bg-gold/5',
         isCurrentUser && 'border-l-2 border-sw-pink bg-sw-pink/5'
       )}
@@ -90,7 +90,7 @@ export function WeekLeaderboardRow({ entry, isCurrentUser }: WeekProps) {
   return (
     <div
       className={clsx(
-        'flex items-center gap-3 py-3.5 px-4',
+        'flex items-center gap-3.5 py-4 px-4',
         is_winner && 'bg-gold/8 border-l-2 border-gold',
         isCurrentUser && !is_winner && 'bg-sw-pink/5 border-l-2 border-sw-pink'
       )}
