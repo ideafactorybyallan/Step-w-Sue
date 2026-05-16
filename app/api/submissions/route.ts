@@ -68,21 +68,12 @@ export async function POST(request: Request) {
   const is_late = isLateSubmission(week_number);
   const now = new Date().toISOString();
 
-  if (existing) {
-    const { data, error } = await supabase
-      .from('weekly_submissions')
-      .update({ total_steps, is_late, updated_at: now })
-      .eq('id', existing.id)
-      .select()
-      .single();
-
-    if (error) return NextResponse.json({ error: 'Failed to update submission' }, { status: 500 });
-    return NextResponse.json(data);
-  }
-
   const { data, error } = await supabase
     .from('weekly_submissions')
-    .insert({ participant_id: session.id, week_number, total_steps, is_late })
+    .upsert(
+      { participant_id: session.id, week_number, total_steps, is_late, updated_at: now },
+      { onConflict: 'participant_id,week_number' }
+    )
     .select()
     .single();
 

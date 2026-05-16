@@ -105,9 +105,9 @@ export function StepEntryWeek({ weekNumber, submission, userId, previewMode = fa
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ entry_date: date, steps }),
       });
-      if (!res.ok) setSaveError('❌ Couldn\'t save — tap to try again');
+      if (!res.ok) setSaveError('❌ Couldn’t save — tap to try again');
     } catch {
-      setSaveError('❌ Couldn\'t save — check your connection');
+      setSaveError('❌ Couldn’t save — check your connection');
     } finally {
       setSaveLoading(false);
     }
@@ -127,7 +127,7 @@ export function StepEntryWeek({ weekNumber, submission, userId, previewMode = fa
       return;
     }
     if (hasInputError) {
-      setError(mode === 'daily' ? `Daily steps can't exceed ${MAX_DAILY.toLocaleString()}.` : `Weekly total can't exceed ${MAX_WEEKLY.toLocaleString()}.`);
+      setError(mode === 'daily' ? `Daily steps can’t exceed ${MAX_DAILY.toLocaleString()}.` : `Weekly total can’t exceed ${MAX_WEEKLY.toLocaleString()}.`);
       return;
     }
     setLoading(true);
@@ -226,7 +226,7 @@ export function StepEntryWeek({ weekNumber, submission, userId, previewMode = fa
           <p className="font-display text-navy text-5xl mt-1">{totalForSubmit.toLocaleString()}</p>
           <p className="font-body text-sm text-gray-500 mt-1">steps for Week {weekNumber}</p>
           <p className="font-body text-xs text-gray-400 mt-4">
-            You're on the leaderboard. Sue is proud. 👟
+            You’re on the leaderboard. Sue is proud. 👟
           </p>
         </div>
       </Card>
@@ -335,18 +335,18 @@ export function StepEntryWeek({ weekNumber, submission, userId, previewMode = fa
                     onChange={(e) => handleDayChange(date, e.target.value)}
                     onBlur={() => handleSaveDayToDb(date)}
                     className={clsx(
-                      'w-full border rounded-xl px-3 py-2 font-body text-navy text-right text-lg focus:outline-none transition-colors duration-150',
+                      'w-full border rounded-xl px-3 py-2 font-body text-navy text-right text-lg focus:outline-none focus:ring-2 focus:ring-inset transition-all duration-150',
                       dayError
-                        ? 'border-orange-300 bg-orange-50 hover:border-orange-400 focus:border-orange-400'
+                        ? 'border-orange-300 bg-orange-50 hover:border-orange-400 focus:border-orange-400 focus:ring-orange-300/30'
                         : isToday
-                        ? 'border-sw-teal/30 bg-white hover:border-sw-teal/50 focus:border-sw-teal'
-                        : 'border-gray-200 bg-white hover:border-gray-300 focus:border-sw-teal'
+                        ? 'border-sw-teal/30 bg-white hover:border-sw-teal/50 focus:border-sw-teal focus:ring-sw-teal/25'
+                        : 'border-gray-200 bg-white hover:border-gray-300 focus:border-sw-teal focus:ring-sw-teal/25'
                     )}
                     min="0"
                     max={MAX_DAILY}
                   />
                   {dayError && (
-                    <p className="text-xs text-orange-600 mt-0.5 text-right">Max {MAX_DAILY.toLocaleString()}</p>
+                    <p className="text-xs text-orange-600 mt-0.5 text-right">Max {MAX_DAILY.toLocaleString()}/day — easy there!</p>
                   )}
                 </div>
               </div>
@@ -359,7 +359,7 @@ export function StepEntryWeek({ weekNumber, submission, userId, previewMode = fa
               {dailySum.toLocaleString()}
             </p>
           </div>
-          {saveLoading && <p className="text-xs text-gray-400 text-center">Saving...</p>}
+          {saveLoading && <p className="text-xs text-gray-400 text-center">Saving your steps…</p>}
           {saveError && (
             <p className="text-xs text-orange-600 text-center bg-orange-50 border border-orange-200 rounded-xl px-3 py-2 animate-fade-up">
               {saveError}
@@ -379,10 +379,10 @@ export function StepEntryWeek({ weekNumber, submission, userId, previewMode = fa
             value={weeklyTotal}
             onChange={(e) => setWeeklyTotal(e.target.value.replace(/\D/g, ''))}
             className={clsx(
-              'w-full border-2 rounded-2xl px-4 py-4 font-display text-navy text-4xl text-center focus:outline-none transition-colors',
+              'w-full border-2 rounded-2xl px-4 py-4 font-display text-navy text-4xl text-center focus:outline-none focus:ring-2 focus:ring-inset transition-all duration-150',
               weeklyHasError
-                ? 'border-orange-300 bg-orange-50 hover:border-orange-400 focus:border-orange-400'
-                : 'border-gray-200 bg-white hover:border-gray-300 focus:border-sw-pink'
+                ? 'border-orange-300 bg-orange-50 hover:border-orange-400 focus:border-orange-400 focus:ring-orange-300/30'
+                : 'border-gray-200 bg-white hover:border-gray-300 focus:border-sw-pink focus:ring-sw-pink/25'
             )}
             min="0"
             max={MAX_WEEKLY}

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
-import { getDaysInWeek } from '@/lib/dates';
+import { getDaysInWeek, CHALLENGE_START, CHALLENGE_END } from '@/lib/dates';
 
 export async function GET(request: Request) {
   const session = await getSession();
@@ -41,6 +41,9 @@ export async function POST(request: Request) {
 
   if (!entry_date || !/^\d{4}-\d{2}-\d{2}$/.test(entry_date)) {
     return NextResponse.json({ error: 'Invalid date format' }, { status: 400 });
+  }
+  if (entry_date < CHALLENGE_START || entry_date > CHALLENGE_END) {
+    return NextResponse.json({ error: 'Date is outside the challenge window.' }, { status: 400 });
   }
   if (isNaN(steps) || steps < 0 || steps > 100_000) {
     return NextResponse.json({ error: 'Steps must be between 0 and 100,000' }, { status: 400 });

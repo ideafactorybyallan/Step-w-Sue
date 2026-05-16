@@ -2,7 +2,11 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
 
-const SECRET = new TextEncoder().encode(process.env.JWT_SECRET ?? '');
+const rawSecret = process.env.JWT_SECRET;
+if (!rawSecret) {
+  throw new Error('JWT_SECRET environment variable is required.');
+}
+const SECRET = new TextEncoder().encode(rawSecret);
 
 const PROTECTED = ['/home', '/leaderboard', '/steps'];
 const ADMIN_PROTECTED = ['/admin/dashboard'];

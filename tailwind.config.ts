@@ -57,6 +57,10 @@ const config: Config = {
       animation: {
         'pulse-slow': 'pulse 3s ease-in-out infinite',
       },
+      transitionTimingFunction: {
+        'spring': 'cubic-bezier(0.32, 0.72, 0, 1)',
+        'soft':   'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+      },
     },
   },
   plugins: [],

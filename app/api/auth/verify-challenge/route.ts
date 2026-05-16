@@ -5,7 +5,14 @@ export async function POST(request: Request) {
   const body = await request.json();
   const password: string = (body.password ?? '').trim();
 
-  const challenge = (process.env.CHALLENGE_PASSWORD ?? 'Bluejays').toLowerCase();
+  const challenge = (process.env.CHALLENGE_PASSWORD ?? '').toLowerCase();
+
+  if (!challenge) {
+    return NextResponse.json(
+      { error: 'Challenge password is not configured. Contact the admin.' },
+      { status: 503 }
+    );
+  }
 
   if (password.toLowerCase() !== challenge) {
     return NextResponse.json(

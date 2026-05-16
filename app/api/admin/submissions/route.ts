@@ -51,6 +51,17 @@ export async function PATCH(request: Request) {
     if (isNaN(steps) || steps < 0) {
       return NextResponse.json({ error: 'Invalid step total' }, { status: 400 });
     }
+    const { data: row } = await supabase
+      .from('weekly_submissions')
+      .select('is_locked')
+      .eq('id', id)
+      .single();
+    if (row?.is_locked) {
+      return NextResponse.json(
+        { error: 'Submission is locked. Unlock it first to edit.' },
+        { status: 409 }
+      );
+    }
     const { error } = await supabase
       .from('weekly_submissions')
       .update({ total_steps: steps, updated_at: new Date().toISOString() })
