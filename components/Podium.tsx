@@ -97,7 +97,7 @@ function PodiumSpot({ entry, rank, isCurrentUser }: SpotProps) {
       </div>
       <p
         className={clsx(
-          'font-body font-bold text-sm text-center leading-tight px-1 mb-0.5 truncate max-w-full',
+          'font-body font-bold text-sm text-center leading-tight px-1 mb-1 truncate max-w-full',
           isCurrentUser ? 'text-sw-pink' : 'text-navy'
         )}
       >

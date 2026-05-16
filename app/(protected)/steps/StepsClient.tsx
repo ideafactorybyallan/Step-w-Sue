@@ -188,7 +188,7 @@ export function StepsClient({ session, submissions }: Props) {
             </div>
 
             {/* Selected week date range */}
-            <p className="font-body text-xs text-gray-400 text-center -mt-1">
+            <p className="font-body text-xs text-gray-400 text-center">
               Week {selectedWeek}: {formatDate(WEEKS[selectedWeek - 1].start)} – {formatDate(WEEKS[selectedWeek - 1].end)}
             </p>
 

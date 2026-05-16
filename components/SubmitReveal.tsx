@@ -159,7 +159,7 @@ export function SubmitReveal({ open, submittedTotal, weekNumber, allSubmissions,
         {(phase === 'rank' || phase === 'sue' || phase === 'done') && (
           <div className="mt-6 flex flex-col items-center gap-2 animate-fade-up">
             {insights.isPB && (
-              <div className="inline-flex items-center gap-1.5 bg-gold/20 border border-gold/40 rounded-full px-3 py-1">
+              <div className="inline-flex items-center gap-1.5 bg-gold/20 border border-gold/40 rounded-full px-3 py-1.5">
                 <SparkleMark className="w-3.5 h-3.5 text-gold" />
                 <span className="font-body text-gold-light font-bold text-xs tracking-wider uppercase">
                   Personal Best

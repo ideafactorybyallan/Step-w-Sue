@@ -256,7 +256,7 @@ export default async function HomePage() {
               </div>
             )}
 
-            <div className="flex items-center justify-between border-t border-gray-50 pt-3">
+            <div className="flex items-center justify-between border-t border-gray-100 pt-3">
               <p className="font-body text-xs text-gray-400">{userStats.weeksSubmitted}/4 weeks submitted</p>
               {!challengeOver && (
                 <p className="font-body text-xs text-gray-400">{daysLeft} day{daysLeft !== 1 ? 's' : ''} left</p>
@@ -267,7 +267,7 @@ export default async function HomePage() {
 
         {/* Gap / motivation card */}
         {!isObserver && challengeStarted && userStats && total > 1 && (
-          <div className={`bg-white rounded-2xl shadow-el-2 p-4 border-l-4 ${
+          <div className={`bg-white rounded-2xl shadow-el-2 p-5 border-l-4 ${
             gapState === 'leading' ? 'border-gold' :
             gapState === 'close' ? 'border-sw-teal' :
             'border-sw-pink'
@@ -331,7 +331,7 @@ export default async function HomePage() {
             </div>
           </Link>
         ) : (
-          <Link href="/steps" className="mt-2 block">
+          <Link href="/steps" className="block">
             <div className="relative overflow-hidden bg-gradient-pink rounded-2xl p-5 flex items-center justify-between shadow-el-3 hover:shadow-el-4 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-150">
               <div className="absolute -top-8 -right-8 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none" />
               <div className="relative">
