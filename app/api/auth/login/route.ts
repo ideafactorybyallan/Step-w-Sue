@@ -12,19 +12,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Participant and PIN are required.' }, { status: 400 });
   }
 
-  const { data: participant, error } = await supabase
+  const { data: participant } = await supabase
     .from('participants')
     .select('*')
     .eq('id', participant_id)
     .eq('is_active', true)
     .maybeSingle();
 
-  if (error || !participant) {
-    return NextResponse.json({ error: 'Account not found.' }, { status: 404 });
-  }
-
-  const valid = await compare(pin, participant.pin_hash);
-  if (!valid) {
+  const valid = participant ? await compare(pin, participant.pin_hash) : false;
+  if (!participant || !valid) {
     return NextResponse.json({ error: 'Wrong PIN — try again! 🔢' }, { status: 401 });
   }
 

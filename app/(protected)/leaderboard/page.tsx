@@ -34,10 +34,11 @@ async function getLeaderboardData() {
     .map((p) => ({ participant: p, ...acc.get(p.id)! }))
     .sort((a, b) => {
       if (b.steps !== a.steps) return b.steps - a.steps;
-      if (a.first_at && b.first_at) return a.first_at < b.first_at ? -1 : 1;
-      if (a.first_at) return -1;
-      if (b.first_at) return 1;
-      return 0;
+      if (a.first_at && b.first_at) {
+        if (a.first_at !== b.first_at) return a.first_at < b.first_at ? -1 : 1;
+      } else if (a.first_at) return -1;
+      else if (b.first_at) return 1;
+      return a.participant.id < b.participant.id ? -1 : 1;
     })
     .map((e, i) => {
       const t = getParticipantTitle(i + 1, total, e.count > 0, e.has_late);
@@ -71,10 +72,11 @@ async function getLeaderboardData() {
       })
       .sort((a, b) => {
         if (b.steps !== a.steps) return b.steps - a.steps;
-        if (a.submitted_at && b.submitted_at) return a.submitted_at < b.submitted_at ? -1 : 1;
-        if (a.submitted_at) return -1;
-        if (b.submitted_at) return 1;
-        return 0;
+        if (a.submitted_at && b.submitted_at) {
+          if (a.submitted_at !== b.submitted_at) return a.submitted_at < b.submitted_at ? -1 : 1;
+        } else if (a.submitted_at) return -1;
+        else if (b.submitted_at) return 1;
+        return a.participant.id < b.participant.id ? -1 : 1;
       })
       .map((e, i) => {
         const isWinner =
