@@ -1,7 +1,7 @@
 import { getSession } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
-import { getWeekStatus, formatDate, WEEKS } from '@/lib/dates';
-import { getParticipantTitle } from '@/lib/sue-says';
+import { getWeekStatus, formatDate, WEEKS, isChallengeStarted } from '@/lib/dates';
+import { assignParticipantTitles } from '@/lib/sue-says';
 import { calculatePrizePool, fmt } from '@/lib/prizes';
 import { LeaderboardClient } from './LeaderboardClient';
 import type { Participant } from '@/lib/types';
@@ -18,6 +18,50 @@ async function getLeaderboardData() {
   const weeks = wRes.data ?? [];
   const total = participants.length;
 
+  // ── Title assignment data ────────────────────────────────────────────────────
+
+  // Last week's winner = winner of the most recently locked week
+  const lockedWeeks = weeks.filter((w) => w.is_locked).sort((a, b) => b.week_number - a.week_number);
+  const lastLockedWeek = lockedWeeks[0] ?? null;
+  let lastWeekWinnerId: string | null = null;
+  if (lastLockedWeek) {
+    if (lastLockedWeek.winner_override_id) {
+      lastWeekWinnerId = lastLockedWeek.winner_override_id;
+    } else {
+      const top = submissions
+        .filter((s) => s.week_number === lastLockedWeek.week_number)
+        .sort((a, b) => b.total_steps - a.total_steps);
+      lastWeekWinnerId = top[0]?.participant_id ?? null;
+    }
+  }
+
+  // Steps per week per participant
+  const stepsByWeekMap = new Map<string, Map<number, number>>();
+  participants.forEach((p) => stepsByWeekMap.set(p.id, new Map()));
+  submissions.forEach((s) => {
+    stepsByWeekMap.get(s.participant_id)?.set(s.week_number, s.total_steps);
+  });
+
+  // Most recently submitted week number
+  const submittedWeekNums = [...new Set(submissions.map((s) => s.week_number))].sort((a, b) => b - a);
+  const mostRecentWeek = submittedWeekNums[0] ?? null;
+
+  // Previous rank = rank computed from steps in all weeks except the most recent
+  const prevStepsMap = new Map<string, number>();
+  participants.forEach((p) => prevStepsMap.set(p.id, 0));
+  submissions.forEach((s) => {
+    if (s.week_number !== mostRecentWeek) {
+      prevStepsMap.set(s.participant_id, (prevStepsMap.get(s.participant_id) ?? 0) + s.total_steps);
+    }
+  });
+  const prevRankMap = new Map(
+    [...prevStepsMap.entries()]
+      .sort(([, a], [, b]) => b - a)
+      .map(([id], i) => [id, i + 1])
+  );
+
+  // ── Overall standings ────────────────────────────────────────────────────────
+
   type Acc = { steps: number; count: number; first_at: string | null; has_late: boolean };
   const acc = new Map<string, Acc>();
   participants.forEach((p) => acc.set(p.id, { steps: 0, count: 0, first_at: null, has_late: false }));
@@ -30,7 +74,7 @@ async function getLeaderboardData() {
     if (s.is_late) e.has_late = true;
   });
 
-  const overall = participants
+  const sortedOverall = participants
     .map((p) => ({ participant: p, ...acc.get(p.id)! }))
     .sort((a, b) => {
       if (b.steps !== a.steps) return b.steps - a.steps;
@@ -39,20 +83,34 @@ async function getLeaderboardData() {
       } else if (a.first_at) return -1;
       else if (b.first_at) return 1;
       return a.participant.id < b.participant.id ? -1 : 1;
-    })
-    .map((e, i) => {
-      const t = getParticipantTitle(i + 1, total, e.count > 0, e.has_late);
-      return {
-        participant: e.participant,
-        total_steps: e.steps,
-        weeks_submitted: e.count,
-        rank: i + 1,
-        title: t.label,
-        title_emoji: t.emoji,
-        has_late: e.has_late,
-        first_submitted_at: e.first_at,
-      };
     });
+
+  const titleMap = assignParticipantTitles(
+    sortedOverall.map((e, i) => ({
+      participantId: e.participant.id,
+      rank: i + 1,
+      stepsByWeek: stepsByWeekMap.get(e.participant.id) ?? new Map(),
+      prevRank: prevRankMap.get(e.participant.id) ?? i + 1,
+    })),
+    lastWeekWinnerId,
+    isChallengeStarted(),
+    mostRecentWeek,
+  );
+
+  const overall = sortedOverall.map((e, i) => {
+    const t = titleMap.get(e.participant.id)!;
+    return {
+      participant: e.participant,
+      total_steps: e.steps,
+      weeks_submitted: e.count,
+      rank: i + 1,
+      title: t.label,
+      title_emoji: t.emoji,
+      title_colorClass: t.colorClass,
+      has_late: e.has_late,
+      first_submitted_at: e.first_at,
+    };
+  });
 
   const weekStandings = weeks.map((week) => {
     const wn = week.week_number;

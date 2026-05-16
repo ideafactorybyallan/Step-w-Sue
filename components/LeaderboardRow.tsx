@@ -48,7 +48,7 @@ interface OverallProps {
 }
 
 export function OverallLeaderboardRow({ entry, isCurrentUser, gapToLeader }: OverallProps) {
-  const { participant: p, rank, total_steps, weeks_submitted, title, title_emoji, has_late } = entry;
+  const { participant: p, rank, total_steps, weeks_submitted, title, title_emoji, title_colorClass, has_late } = entry;
   const name = p.nickname ?? `${p.first_name} ${p.last_name}`;
 
   return (
@@ -76,17 +76,7 @@ export function OverallLeaderboardRow({ entry, isCurrentUser, gapToLeader }: Ove
           )}
         </div>
         <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-          <Badge
-            colorClass={
-              rank === 1
-                ? 'bg-gold/20 text-gold-dark border-gold/40'
-                : rank === 2
-                ? 'bg-gray-100 text-gray-600 border-gray-200'
-                : rank === 3
-                ? 'bg-amber-100 text-amber-800 border-amber-300'
-                : 'bg-navy/5 text-navy/65 border-navy/15'
-            }
-          >
+          <Badge colorClass={title_colorClass}>
             {title_emoji} {title}
           </Badge>
           <span className="font-body text-xs text-gray-400">{weeks_submitted}/4 wks</span>

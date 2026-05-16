@@ -43,6 +43,7 @@ export interface LeaderboardEntry {
   rank: number;
   title: string;
   title_emoji: string;
+  title_colorClass: string;
   has_late: boolean;
   first_submitted_at: string | null;
 }

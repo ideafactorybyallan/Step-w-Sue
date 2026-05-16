@@ -135,27 +135,105 @@ export const SUE_SAYS_QUOTES = [
   "The driveway counts. The mailbox counts. GO.",
 ];
 
+export type { TitleConfig };
+
 const PARTICIPANT_TITLES: Record<string, TitleConfig> = {
-  first:         { label: 'The Pacesetter',      emoji: '👑', colorClass: 'bg-gold/20 text-gold-dark border-gold/40' },
-  second:        { label: 'Hot On Their Heels',  emoji: '🔥', colorClass: 'bg-sw-pink/10 text-sw-pink-dark border-sw-pink/30' },
-  third:         { label: 'The Dark Horse',      emoji: '⚡', colorClass: 'bg-sw-teal/10 text-sw-teal-dark border-sw-teal/30' },
-  middle:        { label: 'The Grinder',         emoji: '💪', colorClass: 'bg-navy/10 text-navy border-navy/20' },
-  last:          { label: 'The Comeback Kid',    emoji: '🌱', colorClass: 'bg-sw-teal/10 text-sw-teal-dark border-sw-teal/30' },
-  not_submitted: { label: 'Still Tying Shoes',   emoji: '😴', colorClass: 'bg-gray-100 text-gray-500 border-gray-200' },
-  late:          { label: 'Monday Night Panic',  emoji: '🚨', colorClass: 'bg-sw-pink/10 text-sw-pink border-sw-pink/30' },
+  pre_comp:        { label: 'Still Tying Shoes',   emoji: '👟', colorClass: 'bg-gray-100 text-gray-500 border-gray-200' },
+  defending_champ: { label: "Last Week's Legend",  emoji: '👑', colorClass: 'bg-gold/20 text-gold-dark border-gold/40' },
+  frontrunner:     { label: 'The Frontrunner',     emoji: '🚀', colorClass: 'bg-navy/12 text-navy border-navy/20' },
+  most_improved:   { label: 'Most Improved',       emoji: '📈', colorClass: 'bg-sw-teal/10 text-sw-teal-dark border-sw-teal/30' },
+  climber:         { label: 'The Climber',         emoji: '🧗', colorClass: 'bg-sw-teal/10 text-sw-teal-dark border-sw-teal/30' },
+  rival:           { label: 'The Rival',           emoji: '🔥', colorClass: 'bg-sw-pink/10 text-sw-pink-dark border-sw-pink/30' },
+  on_the_bubble:   { label: 'On the Bubble',       emoji: '⚡', colorClass: 'bg-amber-50 text-amber-700 border-amber-200' },
+  dark_horse:      { label: 'The Dark Horse',      emoji: '🐎', colorClass: 'bg-navy/[0.07] text-navy/70 border-navy/15' },
+  sleeper:         { label: 'The Sleeper',         emoji: '🌙', colorClass: 'bg-gray-100 text-gray-500 border-gray-200' },
+  caboose:         { label: 'The Caboose',         emoji: '🚂', colorClass: 'bg-gray-100 text-gray-500 border-gray-200' },
 };
 
-export function getParticipantTitle(
-  rank: number,
-  total: number,
-  hasSubmission: boolean,
-  hasLate: boolean,
-): TitleConfig {
-  if (!hasSubmission) return PARTICIPANT_TITLES.not_submitted;
-  if (hasLate && rank > Math.ceil(total / 2)) return PARTICIPANT_TITLES.late;
-  if (rank === 1) return PARTICIPANT_TITLES.first;
-  if (rank === 2) return PARTICIPANT_TITLES.second;
-  if (rank === 3) return PARTICIPANT_TITLES.third;
-  if (rank === total) return PARTICIPANT_TITLES.last;
-  return PARTICIPANT_TITLES.middle;
+export interface TitleEntry {
+  participantId: string;
+  rank: number;
+  stepsByWeek: Map<number, number>;
+  prevRank: number;
+}
+
+export function assignParticipantTitles(
+  entries: TitleEntry[],
+  lastWeekWinnerId: string | null,
+  challengeStarted: boolean,
+  mostRecentWeek: number | null,
+): Map<string, TitleConfig> {
+  const result = new Map<string, TitleConfig>();
+
+  if (!challengeStarted) {
+    for (const e of entries) result.set(e.participantId, PARTICIPANT_TITLES.pre_comp);
+    return result;
+  }
+
+  const assigned = new Set<string>();
+  const assign = (id: string, title: TitleConfig) => {
+    if (!assigned.has(id)) { result.set(id, title); assigned.add(id); }
+  };
+
+  // 1. Last Week's Legend — winner of the most recently locked week
+  if (lastWeekWinnerId) {
+    const e = entries.find((e) => e.participantId === lastWeekWinnerId);
+    if (e) assign(e.participantId, PARTICIPANT_TITLES.defending_champ);
+  }
+
+  // 2. The Frontrunner — rank #1 overall (even if also Last Week's Legend, they only get one title)
+  const rank1 = entries.find((e) => e.rank === 1);
+  if (rank1) assign(rank1.participantId, PARTICIPANT_TITLES.frontrunner);
+
+  // 3. Most Improved — biggest positive jump vs own prior-week average (week 2+ only)
+  if (mostRecentWeek !== null && mostRecentWeek > 1) {
+    let bestDelta = -Infinity;
+    let bestId: string | null = null;
+    for (const e of entries) {
+      if (assigned.has(e.participantId)) continue;
+      const recentSteps = e.stepsByWeek.get(mostRecentWeek) ?? 0;
+      if (recentSteps === 0) continue;
+      const prior = [...e.stepsByWeek.entries()]
+        .filter(([wn]) => wn < mostRecentWeek)
+        .map(([, s]) => s);
+      if (prior.length === 0) continue;
+      const avg = prior.reduce((a, b) => a + b, 0) / prior.length;
+      const delta = recentSteps - avg;
+      if (delta > bestDelta) { bestDelta = delta; bestId = e.participantId; }
+    }
+    if (bestId) assign(bestId, PARTICIPANT_TITLES.most_improved);
+  }
+
+  // 4. The Climber — biggest positive rank gain vs previous-week overall rank
+  {
+    let bestGain = 0;
+    let bestId: string | null = null;
+    for (const e of entries) {
+      if (assigned.has(e.participantId)) continue;
+      const gain = e.prevRank - e.rank; // positive = moved up the standings
+      if (gain > bestGain) { bestGain = gain; bestId = e.participantId; }
+    }
+    if (bestId) assign(bestId, PARTICIPANT_TITLES.climber);
+  }
+
+  // 5–7. Rank-based slots for unassigned people
+  const rank2 = entries.find((e) => e.rank === 2);
+  if (rank2) assign(rank2.participantId, PARTICIPANT_TITLES.rival);
+
+  const rank3 = entries.find((e) => e.rank === 3);
+  if (rank3) assign(rank3.participantId, PARTICIPANT_TITLES.on_the_bubble);
+
+  const last = entries.find((e) => e.rank === entries.length);
+  if (last) assign(last.participantId, PARTICIPANT_TITLES.caboose);
+
+  // 8–9. Remaining middle — top half → Dark Horse, bottom half → Sleeper
+  const remaining = entries
+    .filter((e) => !assigned.has(e.participantId))
+    .sort((a, b) => a.rank - b.rank);
+  const mid = Math.ceil(remaining.length / 2);
+  remaining.forEach((e, i) => {
+    assign(e.participantId, i < mid ? PARTICIPANT_TITLES.dark_horse : PARTICIPANT_TITLES.sleeper);
+  });
+
+  return result;
 }
