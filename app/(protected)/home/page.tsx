@@ -155,7 +155,7 @@ export default async function HomePage() {
       {isMonday && challengeStarted && currentWeek !== null && currentWeek > 1 && <MondayBanner />}
 
       {/* Hero — personal identity */}
-      <div className="bg-hero-navy px-6 pt-8 pb-7 relative overflow-hidden">
+      <div className="bg-hero-navy px-6 pt-[max(2rem,calc(env(safe-area-inset-top)+1rem))] pb-7 relative overflow-hidden">
         <div className="absolute top-4 right-16 text-7xl opacity-[0.06] select-none pointer-events-none" aria-hidden="true">🍁</div>
 
         {/* Top bar: logout · branding · avatar */}
@@ -236,7 +236,7 @@ export default async function HomePage() {
             </div>
 
             {userStats.rank === 1 && (
-              <p className="font-body font-semibold text-gold-dark text-sm mb-3">👑 You&apos;re leading!</p>
+              <p className="font-body font-semibold text-gold-dark text-sm mb-3">👑 You&rsquo;re leading!</p>
             )}
 
             {userStats.rank > 1 && userStats.leaderSteps > 0 && (
@@ -248,7 +248,7 @@ export default async function HomePage() {
                   />
                 </div>
                 <p className="font-body text-xs text-gray-400 mt-1">
-                  {progressPct}% of {overallLeaderName}&apos;s total
+                  {progressPct}% of {overallLeaderName}&rsquo;s total
                 </p>
               </div>
             )}
@@ -279,12 +279,12 @@ export default async function HomePage() {
                 </p>
                 <p className="font-body text-sm text-gray-500 mt-1 leading-relaxed">
                   {gapState === 'leading' && secondPlaceName
-                    ? `${secondPlaceName} is ${gap.toLocaleString()} steps behind — don't slow down`
+                    ? `${secondPlaceName} is ${gap.toLocaleString()} steps behind — don’t slow down`
                     : gapState === 'leading'
-                    ? "You're out in front — keep those steps coming!"
+                    ? 'You’re out in front — keep those steps coming!'
                     : gapState === 'close'
                     ? `${gap.toLocaleString()} steps behind ${overallLeaderName}`
-                    : `${progressPct}% of ${overallLeaderName}'s steps · ${gap.toLocaleString()} to catch up`
+                    : `${progressPct}% of ${overallLeaderName}’s steps · ${gap.toLocaleString()} to catch up`
                   }
                 </p>
                 {gapState !== 'leading' && (
@@ -309,7 +309,7 @@ export default async function HomePage() {
               <div className="absolute -top-8 -right-8 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none" />
               <div className="relative">
                 <p className="font-display text-white text-2xl leading-tight drop-shadow-sm">VIEW STANDINGS</p>
-                <p className="font-body text-white/85 text-sm mt-0.5">You&apos;re observing — cheer them on!</p>
+                <p className="font-body text-white/85 text-sm mt-0.5">You&rsquo;re observing — cheer them on!</p>
               </div>
               <div className="relative flex items-center gap-1">
                 <span className="text-4xl" aria-hidden="true">👀</span>

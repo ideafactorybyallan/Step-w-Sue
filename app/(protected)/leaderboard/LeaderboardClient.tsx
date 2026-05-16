@@ -124,10 +124,11 @@ export function LeaderboardClient({ overall, weekStandings, currentUserId, prize
           {/* Full standings */}
           {overall.length === 0 ? (
             <Card>
-              <div className="text-center py-8">
+              <div className="text-center py-10">
                 <p className="text-4xl mb-2">👟</p>
-                <p className="font-body text-gray-500 text-sm">No one has submitted steps yet!</p>
-                <p className="font-body text-xs text-gray-400 mt-1">Be the first to step up.</p>
+                <p className="font-body text-gray-500 text-sm balanced">
+                  No one has submitted steps yet — be the first to step up.
+                </p>
               </div>
             </Card>
           ) : overallRest.length > 0 ? (
@@ -216,8 +217,11 @@ export function LeaderboardClient({ overall, weekStandings, currentUserId, prize
 
               <Card padded={false}>
                 {activeWeek.entries.length === 0 ? (
-                  <div className="text-center py-8 px-4">
-                    <p className="font-body text-gray-500 text-sm">No entries yet!</p>
+                  <div className="text-center py-10 px-4">
+                    <p className="text-3xl mb-2" aria-hidden="true">👟</p>
+                    <p className="font-body text-gray-500 text-sm balanced">
+                      No one&rsquo;s stepped up this week yet — be the first!
+                    </p>
                   </div>
                 ) : (
                   <>

@@ -45,7 +45,7 @@ export default function StepsPage() {
       {isMonday && started && (getCurrentWeekNumber() ?? 0) > 1 && <MondayBanner />}
 
       {/* Header */}
-      <div className="bg-navy px-6 pt-10 pb-6 relative overflow-hidden">
+      <div className="bg-navy px-6 pt-[max(2.5rem,calc(env(safe-area-inset-top)+1rem))] pb-6 relative overflow-hidden">
         <div className="absolute -top-8 -left-8 w-40 h-40 bg-sw-teal/10 rounded-full blur-3xl pointer-events-none" />
         <p className="font-body text-sw-teal text-xs font-bold tracking-widest uppercase mb-1">
           My Progress
@@ -65,7 +65,7 @@ export default function StepsPage() {
           <>
             <div className="bg-white rounded-2xl p-8 text-center shadow-card">
               <p className="text-5xl mb-3" aria-hidden="true">👀</p>
-              <p className="font-display text-navy text-2xl">YOU&apos;RE OBSERVING</p>
+              <p className="font-display text-navy text-2xl">YOU&rsquo;RE OBSERVING</p>
               <p className="font-body text-sm text-gray-500 mt-2 max-w-xs mx-auto leading-relaxed">
                 Step submission is for paying participants only. Sit back, cheer them on, and enjoy the drama.
               </p>

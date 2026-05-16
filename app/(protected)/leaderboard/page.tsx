@@ -119,7 +119,7 @@ export default async function LeaderboardPage() {
   return (
     <div className="flex flex-col">
       {/* Header */}
-      <div className="bg-navy px-6 pt-10 pb-6">
+      <div className="bg-navy px-6 pt-[max(2.5rem,calc(env(safe-area-inset-top)+1rem))] pb-6">
         <p className="font-body text-sw-teal text-xs font-bold tracking-widest uppercase mb-1">
           Live Standings
         </p>
