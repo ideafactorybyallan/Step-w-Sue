@@ -1,5 +1,12 @@
 import type { Config } from 'tailwindcss';
 
+//  ── Brand color semantics ───────────────────────────────────────────────
+//  sw-pink  → ACTION & primary CTA only (submit, refresh, primary buttons)
+//  sw-teal  → LIVE / right-now state (active week, today's input, current submission)
+//  gold     → ACHIEVEMENT / earned status (winners, podium, locked-in submissions, PBs)
+//  navy     → STRUCTURE / text / headers / secondary buttons
+//  cream    → CANVAS only
+
 const config: Config = {
   content: [
     './app/**/*.{js,ts,jsx,tsx,mdx}',
@@ -35,12 +42,19 @@ const config: Config = {
         body: ['var(--font-inter)', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
+        // Elevation scale — apply consistently across the app
+        'el-1':       '0 1px 2px 0 rgba(27,47,94,0.06)',
+        'el-2':       '0 2px 12px 0 rgba(27,47,94,0.10)',
+        'el-3':       '0 8px 28px 0 rgba(27,47,94,0.14)',
+        'el-4':       '0 16px 48px -4px rgba(27,47,94,0.22)',
+        // Legacy aliases (kept until full migration)
         'card':       '0 2px 16px 0 rgba(27,47,94,0.08)',
         'card-hover': '0 8px 32px 0 rgba(27,47,94,0.16)',
         'card-lg':    '0 12px 48px -8px rgba(27,47,94,0.20)',
         'btn':        '0 4px 14px 0 rgba(232,35,74,0.30)',
         'btn-hover':  '0 8px 24px 0 rgba(232,35,74,0.40)',
         'btn-navy':   '0 4px 14px 0 rgba(27,47,94,0.30)',
+        // Colored glows (for hero moments only)
         'glow-pink':  '0 0 24px 0 rgba(232,35,74,0.5)',
         'glow-teal':  '0 0 24px 0 rgba(43,184,170,0.5)',
         'glow-gold':  '0 0 32px 0 rgba(245,197,24,0.5)',

@@ -4,6 +4,80 @@ interface TitleConfig {
   colorClass: string;
 }
 
+// Contextual Sue voice — short, curated quotes per app state.
+// Use `sueFor(context)` to pick a random one. Quotes stay in Sue's voice:
+// confident, lightly sarcastic, never patronizing.
+export type SueContext =
+  | 'loading'
+  | 'empty'
+  | 'success-pb'
+  | 'success-top3'
+  | 'success-climbed'
+  | 'success-default'
+  | 'late-submit'
+  | 'monday-nudge'
+  | 'observer'
+  | 'top3-header';
+
+const CONTEXT_QUOTES: Record<SueContext, string[]> = {
+  loading: [
+    'Tallying the damage…',
+    'Counting your steps. And judging.',
+    'Pulling the receipts…',
+    'Sue is checking your work.',
+  ],
+  empty: [
+    "No one's stepped up yet. Be the legend.",
+    'Empty leaderboard. Bold move.',
+    'The podium is just sitting there. Take it.',
+  ],
+  'success-pb': [
+    "Now THAT'S a week. Personal best secured.",
+    'Look at you. Sue is begrudgingly impressed.',
+    "Best week yet. Don't get cocky. Yet.",
+  ],
+  'success-top3': [
+    'Podium energy. Keep it up.',
+    'Top three. Sue notices these things.',
+    "The view's better up here, isn't it?",
+  ],
+  'success-climbed': [
+    'Movement on the leaderboard. I see you.',
+    'Up the rankings you go. Keep walking.',
+    'Climbing. Sue approves.',
+  ],
+  'success-default': [
+    'Logged. Steps don’t lie.',
+    'Submitted. Now go for another walk.',
+    "Locked in. On to next week's chaos.",
+  ],
+  'late-submit': [
+    "Late, but it counts. Don't make it a habit.",
+    'Cutting it close. Sue is watching.',
+    "Better late than not at all. Sue is judging, but it's in.",
+  ],
+  'monday-nudge': [
+    "It's Monday. Sue is awake. Submit your steps.",
+    "Submission Monday — don't make Sue come find you.",
+    "Don't leave steps on the table. Lock it in.",
+  ],
+  observer: [
+    "You've got the best seat. Sue's keeping score.",
+    'Watch closely. Cheer if you must. Definitely judge.',
+    "No steps to log, but plenty of drama to enjoy.",
+  ],
+  'top3-header': [
+    'These three are untouchable. For now.',
+    'Top three. The view is good up here.',
+    'The podium. Sue salutes.',
+  ],
+};
+
+export function sueFor(ctx: SueContext): string {
+  const list = CONTEXT_QUOTES[ctx];
+  return list[Math.floor(Math.random() * list.length)];
+}
+
 export const SUE_SAYS_QUOTES = [
   "Every step is a step away from the couch. Keep going!",
   "Those steps aren't going to count themselves!",

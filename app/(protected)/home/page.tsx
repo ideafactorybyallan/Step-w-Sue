@@ -7,6 +7,8 @@ import { MondayBanner } from '@/components/MondayBanner';
 import { CountdownCard } from '@/components/CountdownCard';
 import { PrizesAndRulesCard } from '@/components/PrizesAndRulesCard';
 import { LogoutButton } from '@/components/LogoutButton';
+import { CrownMark, SparkleMark } from '@/components/marks';
+import { StepsNavIcon, StandingsNavIcon } from '@/components/marks/nav-icons';
 import { avatarBg, avatarFg } from '@/lib/avatar';
 import {
   isMondayEDT,
@@ -161,10 +163,10 @@ export default async function HomePage() {
         {/* Top bar: logout · branding · avatar */}
         <div className="flex items-center justify-between mb-6">
           <LogoutButton />
-          <p className="font-body text-white/25 text-xs tracking-[0.2em] uppercase">Step w Sue</p>
+          <p className="font-body text-white/30 text-[10px] tracking-[0.3em] uppercase">Step w Sue</p>
           {session && (
             <div
-              className="w-11 h-11 rounded-full flex items-center justify-center font-body font-bold text-sm border-2 border-white/20 shrink-0"
+              className="w-11 h-11 rounded-full flex items-center justify-center font-display text-base shadow-inset-light shrink-0 [box-shadow:inset_0_1px_0_0_rgba(255,255,255,0.6),0_0_0_2px_rgba(255,255,255,0.18)]"
               style={{ backgroundColor: userAvatarBg, color: userAvatarFg }}
             >
               {session.first_name.charAt(0).toUpperCase()}{session.last_name.charAt(0).toUpperCase()}
@@ -175,18 +177,17 @@ export default async function HomePage() {
         {/* Name */}
         {session && (
           <div>
-            <p className="font-body text-white/40 text-xs tracking-[0.2em] uppercase mb-1">Welcome back</p>
-            <p className="font-display text-white text-5xl leading-none">{session.first_name.toUpperCase()}</p>
-            <p className="font-display text-sw-pink text-5xl leading-none">{session.last_name.toUpperCase()}</p>
+            <p className="font-body text-white/45 text-[10px] tracking-[0.25em] uppercase mb-1">Welcome back</p>
+            <p className="display-hero text-white">{session.first_name.toUpperCase()}</p>
+            <p className="display-hero text-sw-pink">{session.last_name.toUpperCase()}</p>
           </div>
         )}
 
         {/* Status row */}
-        <div className="flex items-center gap-3 mt-3 flex-wrap">
+        <div className="flex items-center gap-2 mt-3 flex-wrap">
           {isObserver && (
             <div className="flex items-center gap-1.5 bg-white/10 border border-white/20 rounded-full px-3 py-1">
-              <span className="text-sm" aria-hidden="true">👀</span>
-              <span className="font-body text-white font-semibold text-xs tracking-wide">OBSERVER</span>
+              <span className="font-body text-white font-semibold text-[10px] tracking-[0.18em]">OBSERVER</span>
             </div>
           )}
           {!isObserver && challengeStarted && userStats && (
@@ -196,12 +197,12 @@ export default async function HomePage() {
             </div>
           )}
           {challengeStarted && !challengeOver && currentWeek && (
-            <p className="font-body text-white/40 text-xs">
+            <p className="font-body text-white/45 text-xs">
               Week {currentWeek} · {daysLeft} day{daysLeft !== 1 ? 's' : ''} left
             </p>
           )}
           {!challengeStarted && (
-            <p className="font-body text-white/40 text-xs">Victoria Day Step Challenge 2026</p>
+            <p className="font-body text-white/45 text-xs">Victoria Day Step Challenge 2026</p>
           )}
         </div>
       </div>
@@ -210,8 +211,8 @@ export default async function HomePage() {
       {announcements.length > 0 && (
         <div className="px-4 pt-3 space-y-2">
           {announcements.map((a) => (
-            <div key={a.id} className="bg-gold/15 border border-gold/40 rounded-xl p-4 flex items-start gap-2 animate-fade-up">
-              <span className="text-base shrink-0">📢</span>
+            <div key={a.id} className="bg-gold/15 border border-gold/40 rounded-xl p-4 flex items-start gap-2.5 animate-fade-up shadow-el-1">
+              <SparkleMark className="w-4 h-4 text-gold-dark shrink-0 mt-0.5" />
               <p className="font-body text-navy text-sm font-medium">{a.message}</p>
             </div>
           ))}
@@ -225,18 +226,20 @@ export default async function HomePage() {
 
         {/* Stat hero card */}
         {!isObserver && challengeStarted && userStats && (
-          <div className="bg-white rounded-2xl shadow-card p-5">
+          <div className="bg-white rounded-2xl shadow-el-2 p-5">
             <div className="flex items-center justify-between mb-3">
-              <p className="font-display text-sw-pink text-6xl leading-none">
+              <p className="display-hero text-sw-pink leading-[0.85]">
                 {userStats.steps.toLocaleString()}
               </p>
-              <span className="bg-navy text-white font-body font-bold text-sm rounded-full px-3 py-1 shrink-0">
+              <span className="bg-navy text-white font-display text-base rounded-full px-3 py-1 shrink-0 shadow-inset-light">
                 #{userStats.rank}
               </span>
             </div>
 
             {userStats.rank === 1 && (
-              <p className="font-body font-semibold text-gold-dark text-sm mb-3">👑 You&rsquo;re leading!</p>
+              <p className="font-body font-semibold text-gold-dark text-sm mb-3 inline-flex items-center gap-1.5">
+                <CrownMark className="w-4 h-3.5" /> Leading the pack
+              </p>
             )}
 
             {userStats.rank > 1 && userStats.leaderSteps > 0 && (
@@ -264,24 +267,34 @@ export default async function HomePage() {
 
         {/* Gap / motivation card */}
         {!isObserver && challengeStarted && userStats && total > 1 && (
-          <div className={`bg-white rounded-2xl p-4 border-l-4 ${
+          <div className={`bg-white rounded-2xl shadow-el-2 p-4 border-l-4 ${
             gapState === 'leading' ? 'border-gold' :
             gapState === 'close' ? 'border-sw-teal' :
             'border-sw-pink'
           }`}>
             <div className="flex items-start gap-3">
-              <span className="text-xl shrink-0 mt-0.5">
-                {gapState === 'leading' ? '👑' : gapState === 'close' ? '🎯' : '💪'}
-              </span>
+              <div className={`shrink-0 w-9 h-9 rounded-full flex items-center justify-center mt-0.5 ${
+                gapState === 'leading' ? 'bg-gold/15' :
+                gapState === 'close' ? 'bg-sw-teal/15' :
+                'bg-sw-pink/10'
+              }`}>
+                {gapState === 'leading' ? (
+                  <CrownMark className="w-5 h-4" />
+                ) : gapState === 'close' ? (
+                  <SparkleMark className="w-4 h-4 text-sw-teal" />
+                ) : (
+                  <span className="display-sm text-sw-pink">↑</span>
+                )}
+              </div>
               <div className="flex-1 min-w-0">
-                <p className="font-display text-navy text-2xl leading-none">
+                <p className="display-sm text-navy">
                   {gapState === 'leading' ? "YOU'RE LEADING" : gapState === 'close' ? 'SO CLOSE' : 'KEEP CLIMBING'}
                 </p>
                 <p className="font-body text-sm text-gray-500 mt-1 leading-relaxed">
                   {gapState === 'leading' && secondPlaceName
                     ? `${secondPlaceName} is ${gap.toLocaleString()} steps behind — don’t slow down`
                     : gapState === 'leading'
-                    ? 'You’re out in front — keep those steps coming!'
+                    ? 'You’re out in front — keep those steps coming.'
                     : gapState === 'close'
                     ? `${gap.toLocaleString()} steps behind ${overallLeaderName}`
                     : `${progressPct}% of ${overallLeaderName}’s steps · ${gap.toLocaleString()} to catch up`
@@ -305,32 +318,32 @@ export default async function HomePage() {
         {/* Primary CTA — participants get ADD MY STEPS, observers get VIEW STANDINGS */}
         {isObserver ? (
           <Link href="/leaderboard">
-            <div className="relative overflow-hidden bg-gradient-ocean rounded-2xl p-5 flex items-center justify-between shadow-btn hover:shadow-btn-hover hover:-translate-y-0.5 active:translate-y-0 transition-all duration-150">
+            <div className="relative overflow-hidden bg-gradient-ocean rounded-2xl p-5 flex items-center justify-between shadow-el-3 hover:shadow-el-4 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-150">
               <div className="absolute -top-8 -right-8 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none" />
               <div className="relative">
-                <p className="font-display text-white text-2xl leading-tight drop-shadow-sm">VIEW STANDINGS</p>
-                <p className="font-body text-white/85 text-sm mt-0.5">You&rsquo;re observing — cheer them on!</p>
+                <p className="display-md text-white drop-shadow-sm">VIEW STANDINGS</p>
+                <p className="font-body text-white/85 text-sm mt-0.5">You&rsquo;re observing — cheer them on.</p>
               </div>
               <div className="relative flex items-center gap-1">
-                <span className="text-4xl" aria-hidden="true">👀</span>
+                <StandingsNavIcon size={32} strokeWidth={2} className="text-white" />
                 <ChevronRight size={20} className="text-white/80" />
               </div>
             </div>
           </Link>
         ) : (
           <Link href="/steps" className="mt-2 block">
-            <div className="relative overflow-hidden bg-gradient-pink rounded-2xl p-5 flex items-center justify-between shadow-btn hover:shadow-btn-hover hover:-translate-y-0.5 active:translate-y-0 transition-all duration-150">
+            <div className="relative overflow-hidden bg-gradient-pink rounded-2xl p-5 flex items-center justify-between shadow-el-3 hover:shadow-el-4 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-150">
               <div className="absolute -top-8 -right-8 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none" />
               <div className="relative">
-                <p className="font-display text-white text-2xl leading-tight drop-shadow-sm">ADD MY STEPS</p>
+                <p className="display-md text-white drop-shadow-sm">ADD MY STEPS</p>
                 <p className="font-body text-white/85 text-sm mt-0.5">
                   {isMonday && currentWeek !== null && currentWeek > 1
-                    ? '🚨 Submit today! Deadline is midnight.'
-                    : 'Track your daily progress'}
+                    ? 'Submission Monday — lock it in by midnight.'
+                    : 'Track your daily progress.'}
                 </p>
               </div>
               <div className="relative flex items-center gap-1">
-                <span className="text-4xl" aria-hidden="true">🏃</span>
+                <StepsNavIcon size={32} strokeWidth={2} className="text-white" />
                 <ChevronRight size={20} className="text-white/80" />
               </div>
             </div>
@@ -339,14 +352,14 @@ export default async function HomePage() {
 
         {/* Community strip — challengers + group total */}
         {challengeStarted && (
-          <div className="bg-white rounded-2xl shadow-card p-4 flex items-center">
+          <div className="bg-white rounded-2xl shadow-el-2 p-4 flex items-center">
             <div className="flex-1 text-center">
-              <p className="font-display text-navy text-3xl leading-none">{total}</p>
+              <p className="display-md text-navy leading-none">{total}</p>
               <p className="font-body text-xs text-gray-400 mt-0.5">Challenger{total !== 1 ? 's' : ''}</p>
             </div>
             <div className="w-px bg-gray-100 self-stretch" />
             <div className="flex-1 text-center">
-              <p className="font-display text-sw-pink text-3xl leading-none">
+              <p className="display-md text-sw-pink leading-none">
                 {totalGroupSteps >= 1_000_000
                   ? `${(totalGroupSteps / 1_000_000).toFixed(1)}M`
                   : totalGroupSteps >= 1000
@@ -363,7 +376,7 @@ export default async function HomePage() {
         {/* Standings preview */}
         {challengeStarted && (overallLeaderName || weekLeaderName) && (
           <Link href="/leaderboard">
-            <div className="bg-white rounded-2xl shadow-card p-4 hover:shadow-card-hover transition-shadow">
+            <div className="bg-white rounded-2xl shadow-el-2 p-4 hover:shadow-el-3 transition-shadow">
               <div className="flex items-center justify-between mb-3">
                 <p className="font-body text-xs font-semibold text-gray-400 uppercase tracking-wider">Standings</p>
                 <ChevronRight size={16} className="text-gray-300" />
@@ -374,7 +387,7 @@ export default async function HomePage() {
                   <p className="font-body text-sm font-semibold text-navy flex-1 truncate">
                     Overall · {overallLeaderName ?? 'No entries yet'}
                   </p>
-                  <p className="font-display text-lg text-navy shrink-0">
+                  <p className="display-xs text-navy shrink-0">
                     {overallLeader && overallLeader.steps > 0 ? overallLeader.steps.toLocaleString() : '—'}
                   </p>
                 </div>
@@ -384,7 +397,7 @@ export default async function HomePage() {
                     <p className="font-body text-sm font-semibold text-navy flex-1 truncate">
                       Week {currentWeek} · {weekLeaderName ?? 'No entries yet'}
                     </p>
-                    <p className="font-display text-lg text-navy shrink-0">
+                    <p className="display-xs text-navy shrink-0">
                       {weekLeaderSteps > 0 ? weekLeaderSteps.toLocaleString() : '—'}
                     </p>
                   </div>
