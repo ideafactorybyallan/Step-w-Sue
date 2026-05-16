@@ -116,7 +116,7 @@ export default function JoinPage() {
               else if (step === 'password') { setStep('mode'); setError(''); }
               else if (step === 'account') { setStep('password'); setError(''); }
             }}
-            className="text-white/60 hover:text-white transition-colors"
+            className="text-white/60 hover:text-white active:scale-[0.88] transition-all duration-100"
           >
             <ChevronLeft size={24} />
           </button>
@@ -177,7 +177,7 @@ export default function JoinPage() {
 
             <button
               onClick={() => { setJoinMode('join'); setError(''); setStep('password'); }}
-              className="w-full bg-white border-2 border-sw-pink rounded-2xl p-5 text-left shadow-card hover:shadow-card-hover transition-all active:scale-[0.99]"
+              className="w-full bg-white border-2 border-sw-pink rounded-2xl p-5 text-left shadow-card hover:shadow-card-hover transition-all duration-150 active:scale-[0.97]"
             >
               <div className="flex items-center gap-3 mb-2">
                 <span className="text-3xl">🏃</span>
@@ -193,7 +193,7 @@ export default function JoinPage() {
 
             <button
               onClick={() => { setJoinMode('observe'); setError(''); setStep('password'); }}
-              className="w-full bg-white border-2 border-navy/15 rounded-2xl p-5 text-left shadow-card hover:shadow-card-hover transition-all active:scale-[0.99]"
+              className="w-full bg-white border-2 border-navy/15 rounded-2xl p-5 text-left shadow-card hover:shadow-card-hover transition-all duration-150 active:scale-[0.97]"
             >
               <div className="flex items-center gap-3 mb-2">
                 <span className="text-3xl">👀</span>
@@ -232,7 +232,7 @@ export default function JoinPage() {
                 value={challengePassword}
                 onChange={(e) => setChallengePassword(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleVerifyPassword()}
-                className="w-full border-2 border-gray-200 bg-white rounded-2xl px-4 py-4 font-body text-navy text-lg text-center focus:outline-none focus:border-sw-pink transition-colors"
+                className="w-full border-2 border-gray-200 bg-white rounded-2xl px-4 py-4 font-body text-navy text-lg text-center focus:outline-none hover:border-gray-300 focus:border-sw-pink transition-colors duration-150"
                 autoCapitalize="none"
                 autoComplete="off"
               />
@@ -283,7 +283,7 @@ export default function JoinPage() {
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
                       autoComplete="given-name"
-                      className="w-full border-2 border-gray-200 bg-white rounded-2xl px-4 py-3 font-body text-navy focus:outline-none focus:border-sw-pink transition-colors"
+                      className="w-full border-2 border-gray-200 bg-white rounded-2xl px-4 py-3 font-body text-navy focus:outline-none hover:border-gray-300 focus:border-sw-pink transition-colors duration-150"
                     />
                   </div>
 
@@ -297,7 +297,7 @@ export default function JoinPage() {
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                       autoComplete="family-name"
-                      className="w-full border-2 border-gray-200 bg-white rounded-2xl px-4 py-3 font-body text-navy focus:outline-none focus:border-sw-pink transition-colors"
+                      className="w-full border-2 border-gray-200 bg-white rounded-2xl px-4 py-3 font-body text-navy focus:outline-none hover:border-gray-300 focus:border-sw-pink transition-colors duration-150"
                     />
                   </div>
 
@@ -311,7 +311,7 @@ export default function JoinPage() {
                       placeholder="e.g. The Pacer, Speedy..."
                       value={nickname}
                       onChange={(e) => setNickname(e.target.value)}
-                      className="w-full border-2 border-gray-200 bg-white rounded-2xl px-4 py-3 font-body text-navy focus:outline-none focus:border-sw-pink transition-colors"
+                      className="w-full border-2 border-gray-200 bg-white rounded-2xl px-4 py-3 font-body text-navy focus:outline-none hover:border-gray-300 focus:border-sw-pink transition-colors duration-150"
                     />
                     <p className="text-xs text-gray-400 mt-1 px-1">Shows on the leaderboard</p>
                   </div>

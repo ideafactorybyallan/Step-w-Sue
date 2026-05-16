@@ -251,7 +251,7 @@ export default function AdminDashboard() {
                     />
                     <button
                       onClick={() => handleResetPin(p.id)}
-                      className="bg-navy text-white font-body text-xs rounded-xl px-3 py-2"
+                      className="bg-navy text-white font-body text-xs rounded-xl px-3 py-2 hover:opacity-80 active:scale-[0.95] transition-all duration-100"
                     >
                       Reset PIN
                     </button>
@@ -299,7 +299,7 @@ export default function AdminDashboard() {
                             />
                             <button
                               onClick={() => handleOverrideSteps(s.id)}
-                              className="bg-sw-teal text-white font-body text-xs rounded-xl px-2 py-1"
+                              className="bg-sw-teal text-white font-body text-xs rounded-xl px-2 py-1 hover:opacity-80 active:scale-[0.95] transition-all duration-100"
                             >
                               Save
                             </button>
@@ -332,7 +332,7 @@ export default function AdminDashboard() {
                   <button
                     onClick={() => handleToggleWeekLock(week.week_number, week.is_locked)}
                     className={clsx(
-                      'flex items-center gap-2 rounded-xl px-4 py-2 font-body text-sm font-semibold',
+                      'flex items-center gap-2 rounded-xl px-4 py-2 font-body text-sm font-semibold hover:opacity-80 active:scale-[0.95] transition-all duration-100',
                       week.is_locked
                         ? 'bg-sw-teal/10 text-sw-teal border border-sw-teal/30'
                         : 'bg-sw-pink/10 text-sw-pink border border-sw-pink/30'
@@ -360,7 +360,7 @@ export default function AdminDashboard() {
               />
               <button
                 onClick={handleAddAnnouncement}
-                className="mt-2 flex items-center gap-2 bg-sw-pink text-white font-body text-sm font-semibold rounded-xl px-4 py-2"
+                className="mt-2 flex items-center gap-2 bg-sw-pink text-white font-body text-sm font-semibold rounded-xl px-4 py-2 hover:opacity-80 active:scale-[0.95] transition-all duration-100"
               >
                 <Plus size={14} />
                 Post Announcement

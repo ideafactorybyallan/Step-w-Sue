@@ -78,10 +78,10 @@ export function LeaderboardClient({ overall, weekStandings, currentUserId, prize
                 key={String(id)}
                 onClick={() => setTab(id)}
                 className={clsx(
-                  'shrink-0 px-4 py-3 rounded-xl font-body font-semibold text-sm transition-all duration-200 flex items-center gap-1.5 whitespace-nowrap',
+                  'shrink-0 px-4 py-3 rounded-xl font-body font-semibold text-sm transition-all duration-150 flex items-center gap-1.5 whitespace-nowrap active:scale-[0.95]',
                   isActive
-                    ? 'bg-navy text-white shadow-btn-navy'
-                    : 'text-navy/60 hover:text-navy'
+                    ? 'bg-navy text-white shadow-btn-navy active:bg-navy/90'
+                    : 'text-navy/60 hover:text-navy active:bg-navy/10'
                 )}
               >
                 {weekData && (
@@ -96,7 +96,7 @@ export function LeaderboardClient({ overall, weekStandings, currentUserId, prize
         <button
           onClick={handleRefresh}
           disabled={isPending}
-          className="shrink-0 w-10 h-10 rounded-2xl bg-white shadow-card flex items-center justify-center text-navy/60 hover:text-sw-pink hover:shadow-card-hover transition-all disabled:opacity-50"
+          className="shrink-0 w-10 h-10 rounded-2xl bg-white shadow-card flex items-center justify-center text-navy/60 hover:text-sw-pink hover:shadow-card-hover active:scale-[0.88] transition-all duration-100 disabled:opacity-50"
           aria-label="Refresh"
         >
           <RefreshCw size={16} className={clsx(isPending && 'animate-spin')} />

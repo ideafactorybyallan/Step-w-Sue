@@ -48,7 +48,7 @@ export function PrizesAndRulesCard({ participantCount }: Props) {
     <div className="bg-white rounded-2xl shadow-card border border-gray-100/80 overflow-hidden">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center justify-between gap-3 p-4 hover:bg-gray-50/50 transition-colors"
+        className="w-full flex items-center justify-between gap-3 p-4 hover:bg-gray-50/50 active:bg-gray-100 active:scale-[0.99] transition-all duration-100"
       >
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-gold/15 flex items-center justify-center text-xl shrink-0">🏆</div>
