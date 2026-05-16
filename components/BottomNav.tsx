@@ -2,13 +2,13 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { Home, Trophy, Footprints } from 'lucide-react';
 import { clsx } from 'clsx';
+import { HomeNavIcon, StandingsNavIcon, StepsNavIcon } from './marks/nav-icons';
 
 const tabs = [
-  { href: '/home',        label: 'Home',      Icon: Home },
-  { href: '/leaderboard', label: 'Standings', Icon: Trophy },
-  { href: '/steps',       label: 'My Steps',  Icon: Footprints },
+  { href: '/home',        label: 'Home',      Icon: HomeNavIcon },
+  { href: '/leaderboard', label: 'Standings', Icon: StandingsNavIcon },
+  { href: '/steps',       label: 'My Steps',  Icon: StepsNavIcon },
 ];
 
 export function BottomNav() {
@@ -54,8 +54,8 @@ export function BottomNav() {
                   className={clsx(
                     'transition-colors duration-150',
                     active
-                      ? 'text-sw-pink drop-shadow-[0_0_6px_rgba(232,35,74,0.7)]'
-                      : 'text-white/50'
+                      ? 'text-sw-pink [filter:drop-shadow(0_0_6px_rgba(232,35,74,0.6))]'
+                      : 'text-white/55'
                   )}
                 />
               </span>

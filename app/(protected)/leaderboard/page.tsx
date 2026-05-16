@@ -119,12 +119,13 @@ export default async function LeaderboardPage() {
   return (
     <div className="flex flex-col">
       {/* Header */}
-      <div className="bg-navy px-6 pt-[max(2.5rem,calc(env(safe-area-inset-top)+1rem))] pb-6">
-        <p className="font-body text-sw-teal text-xs font-bold tracking-widest uppercase mb-1">
+      <div className="bg-hero-navy-tight px-6 pt-[max(2.5rem,calc(env(safe-area-inset-top)+1rem))] pb-6 relative overflow-hidden">
+        <div className="absolute -top-8 -right-8 w-40 h-40 bg-gold/15 rounded-full blur-3xl pointer-events-none" />
+        <p className="font-body text-sw-teal text-[10px] font-bold tracking-[0.3em] uppercase mb-1">
           Live Standings
         </p>
-        <p className="font-display text-sw-pink text-5xl leading-none">LEADER</p>
-        <p className="font-display text-white text-4xl leading-none">BOARD</p>
+        <p className="display-hero text-sw-pink">LEADER</p>
+        <p className="display-hero text-white -mt-1">BOARD</p>
       </div>
 
       <div className="px-4 pt-4 pb-6">

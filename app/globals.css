@@ -27,6 +27,15 @@
     letter-spacing: 0.01em;
   }
 
+  /* Bebas Neue type ladder — use these six classes for all display text.
+     Keeps the typographic rhythm consistent and refuses arbitrary sizes. */
+  .display-hero { @apply font-display text-[64px] leading-[0.85] tracking-[0.01em]; }
+  .display-xl   { @apply font-display text-5xl   leading-[0.9]; }
+  .display-lg   { @apply font-display text-4xl   leading-tight; }
+  .display-md   { @apply font-display text-3xl   leading-tight; }
+  .display-sm   { @apply font-display text-2xl   leading-tight; }
+  .display-xs   { @apply font-display text-xl    leading-tight; }
+
   /* Prevent iOS double-tap zoom on form elements */
   input, button, select, textarea {
     font-size: 16px;
@@ -156,12 +165,29 @@
   to { opacity: 1; transform: translateX(0); }
 }
 
+@keyframes slide-up-in {
+  from { opacity: 0; transform: translateY(40px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scrim-rise {
+  from { opacity: 0; transform: translateY(100%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+
 .animate-shake { animation: shake 0.5s ease-in-out; }
 .animate-fade-up { animation: fadeInUp 0.35s ease-out both; }
 .animate-pop-in { animation: popIn 0.3s ease-out both; }
 .animate-float-slow { animation: float-slow 4s ease-in-out infinite; }
 .animate-glow-pulse { animation: glow-pulse 2s ease-out infinite; }
 .animate-slide-in-right { animation: slide-in-right 0.4s ease-out both; }
+.animate-slide-up-in { animation: slide-up-in 0.5s cubic-bezier(0.32, 0.72, 0, 1) both; }
+.animate-scrim-rise { animation: scrim-rise 0.55s cubic-bezier(0.32, 0.72, 0, 1) both; }
+.animate-spin-slow { animation: spin-slow 1.2s linear infinite; }
 
 /* Stagger children fade-ups */
 .stagger-children > * { opacity: 0; animation: fadeInUp 0.4s ease-out forwards; }
