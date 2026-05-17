@@ -118,6 +118,11 @@
     animation: shimmer 1.8s infinite;
   }
 
+  /* Combined shadow for the weekly roast card: navy drop + gold ambient glow */
+  .shadow-roast-card {
+    box-shadow: 0 16px 48px -4px rgba(27,47,94,0.22), 0 0 40px rgba(245,197,24,0.12);
+  }
+
   /* Pill divider for sections */
   .section-divider {
     height: 1px;

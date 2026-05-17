@@ -18,8 +18,7 @@ interface Props {
 
 function WinnerCard({ week }: { week: WeekData }) {
   const winnerSteps = week.winner
-    ? (week.entries.find((e) => (e as any).participant?.id === week.winner?.id)?.steps ??
-       week.entries.filter((e) => e.is_submitted).sort((a, b) => b.steps - a.steps)[0]?.steps ?? 0)
+    ? (week.entries.filter((e) => e.is_submitted).sort((a, b) => b.steps - a.steps)[0]?.steps ?? 0)
     : 0;
 
   const winnerName = week.winner

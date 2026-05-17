@@ -31,13 +31,7 @@ export function WeeklyRoastCard({
   const [quote] = useState(() => sueFor(ctx));
 
   return (
-    <div
-      className="relative overflow-hidden rounded-2xl p-5"
-      style={{
-        background: 'radial-gradient(circle at 70% 30%, rgba(232,35,74,0.18) 0%, transparent 55%), linear-gradient(135deg, #1B2F5E 0%, #2A4580 100%)',
-        boxShadow: '0 16px 48px -4px rgba(27,47,94,0.22), 0 0 40px rgba(245,197,24,0.12)',
-      }}
-    >
+    <div className="relative overflow-hidden rounded-2xl p-5 bg-hero-navy-tight shadow-roast-card">
       {/* Background glows */}
       <div className="pointer-events-none absolute -top-8 -right-8 w-40 h-40 bg-gold/15 rounded-full blur-3xl" />
       <div className="pointer-events-none absolute -bottom-8 -left-8 w-32 h-32 bg-sw-pink/10 rounded-full blur-3xl" />
