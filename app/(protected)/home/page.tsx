@@ -6,6 +6,7 @@ import { SueSaysCard } from '@/components/SueSaysCard';
 import { MondayBanner } from '@/components/MondayBanner';
 import { CountdownCard } from '@/components/CountdownCard';
 import { PrizesAndRulesCard } from '@/components/PrizesAndRulesCard';
+import { WeeklyRoastCard } from '@/components/WeeklyRoastCard';
 import { LogoutButton } from '@/components/LogoutButton';
 import { CrownMark, SparkleMark } from '@/components/marks';
 import { StepsNavIcon, StandingsNavIcon } from '@/components/marks/nav-icons';
@@ -19,7 +20,7 @@ import {
 } from '@/lib/dates';
 
 async function getHomeData(currentUserId: string | null) {
-  const [pRes, sRes, aRes] = await Promise.all([
+  const [pRes, sRes, aRes, wRes] = await Promise.all([
     supabase.from('participants').select('*').eq('is_active', true).eq('is_observer', false),
     supabase.from('weekly_submissions').select('*'),
     supabase
@@ -28,11 +29,13 @@ async function getHomeData(currentUserId: string | null) {
       .eq('is_active', true)
       .order('created_at', { ascending: false })
       .limit(3),
+    supabase.from('weeks').select('*').order('week_number'),
   ]);
 
   const participants = pRes.data ?? [];
   const submissions = sRes.data ?? [];
   const announcements = aRes.data ?? [];
+  const weeks = wRes.data ?? [];
   const total = participants.length;
 
   const totals = new Map<string, { steps: number; first_at: string | null; count: number }>();
@@ -94,6 +97,71 @@ async function getHomeData(currentUserId: string | null) {
 
   const totalGroupSteps = submissions.reduce((sum, s) => sum + s.total_steps, 0);
 
+  // ── Weekly Roast data ───────────────────────────────────────────────────────
+  const lastLockedWeek = weeks
+    .filter((w) => w.is_locked)
+    .sort((a, b) => b.week_number - a.week_number)[0] ?? null;
+
+  let weekRoast: {
+    weekNumber: number;
+    winnerFirstName: string;
+    winnerSteps: number;
+    margin: number;
+    lateCount: number;
+    pbHolderFirstName: string | null;
+    isClose: boolean;
+  } | null = null;
+
+  if (lastLockedWeek) {
+    const wn = lastLockedWeek.week_number;
+    const weekSubs = submissions.filter((s) => s.week_number === wn);
+
+    // Winner
+    let winnerId: string | null = lastLockedWeek.winner_override_id ?? null;
+    const sortedWeekSubs = [...weekSubs].sort((a, b) => b.total_steps - a.total_steps);
+    if (!winnerId && sortedWeekSubs[0]) winnerId = sortedWeekSubs[0].participant_id;
+
+    const winner = winnerId ? participants.find((p) => p.id === winnerId) ?? null : null;
+    const winnerSub = winnerId ? weekSubs.find((s) => s.participant_id === winnerId) : null;
+    const winnerSteps = winnerSub?.total_steps ?? 0;
+
+    // Margin vs 2nd
+    const secondSub = sortedWeekSubs.find((s) => s.participant_id !== winnerId);
+    const margin = secondSub ? winnerSteps - secondSub.total_steps : winnerSteps;
+
+    // Late count
+    const lateCount = weekSubs.filter((s) => s.is_late).length;
+
+    // PB holder — someone whose steps this week exceed all their prior weeks
+    let pbHolderFirstName: string | null = null;
+    for (const p of participants) {
+      const thisWeek = weekSubs.find((s) => s.participant_id === p.id)?.total_steps ?? 0;
+      if (thisWeek === 0) continue;
+      const priorMax = submissions
+        .filter((s) => s.participant_id === p.id && s.week_number < wn)
+        .reduce((max, s) => Math.max(max, s.total_steps), 0);
+      if (priorMax > 0 && thisWeek > priorMax) {
+        // Prefer the winner as PB holder for context; otherwise first found
+        if (p.id === winnerId || pbHolderFirstName === null) {
+          pbHolderFirstName = p.first_name;
+        }
+        if (p.id === winnerId) break;
+      }
+    }
+
+    if (winner) {
+      weekRoast = {
+        weekNumber: wn,
+        winnerFirstName: winner.first_name,
+        winnerSteps,
+        margin,
+        lateCount,
+        pbHolderFirstName,
+        isClose: margin < 5000,
+      };
+    }
+  }
+
   return {
     total,
     overallLeader,
@@ -104,6 +172,7 @@ async function getHomeData(currentUserId: string | null) {
     announcements,
     userStats,
     totalGroupSteps,
+    weekRoast,
   };
 }
 
@@ -119,6 +188,7 @@ export default async function HomePage() {
     announcements,
     userStats,
     totalGroupSteps,
+    weekRoast,
   } = await getHomeData(session?.id ?? null);
 
   const isMonday = isMondayEDT();
@@ -263,6 +333,19 @@ export default async function HomePage() {
               )}
             </div>
           </div>
+        )}
+
+        {/* Weekly Roast — appears after a week locks */}
+        {weekRoast && (
+          <WeeklyRoastCard
+            weekNumber={weekRoast.weekNumber}
+            winnerFirstName={weekRoast.winnerFirstName}
+            winnerSteps={weekRoast.winnerSteps}
+            margin={weekRoast.margin}
+            lateCount={weekRoast.lateCount}
+            pbHolderFirstName={weekRoast.pbHolderFirstName}
+            isClose={weekRoast.isClose}
+          />
         )}
 
         {/* Gap / motivation card */}

@@ -17,7 +17,10 @@ export type SueContext =
   | 'late-submit'
   | 'monday-nudge'
   | 'observer'
-  | 'top3-header';
+  | 'top3-header'
+  | 'weekly-roast-winner'
+  | 'weekly-roast-pb'
+  | 'weekly-roast-close';
 
 const CONTEXT_QUOTES: Record<SueContext, string[]> = {
   loading: [
@@ -70,6 +73,21 @@ const CONTEXT_QUOTES: Record<SueContext, string[]> = {
     'These three are untouchable. For now.',
     'Top three. The view is good up here.',
     'The podium. Sue salutes.',
+  ],
+  'weekly-roast-winner': [
+    "Another week, another champion. The rest of you: noted.",
+    "That's how it's done. Everyone else, take notes.",
+    "Week locked. Winner crowned. Sue is satisfied.",
+  ],
+  'weekly-roast-pb': [
+    "Personal best AND a win? Somebody's been hiding something.",
+    "A new record in this house. Sue is begrudgingly impressed.",
+    "Peak performance. The rest of you have your work cut out.",
+  ],
+  'weekly-roast-close': [
+    "That was close. Someone should be nervous.",
+    "Nail-biter week. Nobody's safe.",
+    "Tight race. Sue enjoyed watching you all suffer.",
   ],
 };
 

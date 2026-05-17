@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/Card';
 import { OverallLeaderboardRow, WeekLeaderboardRow } from '@/components/LeaderboardRow';
 import { WeekWinnerCard } from '@/components/WeekWinnerCard';
 import { Podium } from '@/components/Podium';
+import { HallOfFame } from '@/components/HallOfFame';
 import { SueMark, LockMark } from '@/components/marks';
 import { sueFor } from '@/lib/sue-says';
 import { formatDate } from '@/lib/dates';
@@ -172,6 +173,8 @@ export function LeaderboardClient({ overall, weekStandings, currentUserId, prize
               </div>
             </Card>
           ) : null}
+
+          <HallOfFame weekStandings={weekStandings} />
         </div>
       )}
 
