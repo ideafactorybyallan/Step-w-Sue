@@ -161,7 +161,7 @@ export function LeaderboardClient({ overall, weekStandings, currentUserId, prize
               <p className="font-body text-xs font-semibold text-gray-400 uppercase tracking-wider px-4 pt-4 pb-3">
                 Full Rankings
               </p>
-              <div className="divide-y divide-gray-100">
+              <div className="divide-y divide-gray-100 stagger-children">
                 {overallRest.map((entry) => (
                   <OverallLeaderboardRow
                     key={entry.participant.id}
@@ -292,7 +292,7 @@ export function LeaderboardClient({ overall, weekStandings, currentUserId, prize
                     <p className="font-body text-xs font-semibold text-gray-400 uppercase tracking-wider px-4 pt-4 pb-3">
                       {weekPodium.length >= 1 && !activeWeek.is_locked ? 'Full Rankings' : 'Rankings'}
                     </p>
-                    <div className="divide-y divide-gray-100">
+                    <div className="divide-y divide-gray-100 stagger-children">
                       {(weekPodium.length >= 1 && !activeWeek.is_locked ? weekRest : activeWeek.entries).map((entry) => (
                         <WeekLeaderboardRow
                           key={entry.participant.id}

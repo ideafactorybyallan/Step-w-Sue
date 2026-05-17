@@ -132,8 +132,8 @@ export function Podium({ entries, currentUserId }: Props) {
 
   return (
     <div className="relative overflow-hidden rounded-2xl bg-white shadow-el-3 border border-gray-100/80 p-5">
-      {/* Gold halo behind #1 (the eye-catching glow) */}
-      <div className="pointer-events-none absolute top-6 left-1/2 -translate-x-1/2 w-44 h-44 bg-gold/25 rounded-full blur-3xl" />
+      {/* Gold halo behind #1 — pulses gently to draw the eye */}
+      <div className="pointer-events-none absolute top-6 left-1/2 -translate-x-1/2 w-44 h-44 bg-gold/25 rounded-full blur-3xl animate-pulse" />
       <p className="relative font-body text-xs italic text-navy/55 text-center mb-4 px-4 balanced">
         &ldquo;{quote}&rdquo;
       </p>
