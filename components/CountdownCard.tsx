@@ -69,15 +69,28 @@ export function CountdownCard() {
     );
   }
 
+  const days = getDaysRemaining();
   const finalStretch = getCurrentWeekNumber() === 4;
+  const critical = days <= 2;
+  const urgent = days <= 5 && !critical;
+
+  const label = critical ? 'Final Hours' : finalStretch ? 'Final Stretch' : 'Days Remaining';
+  const suffix = days === 1 ? 'DAY LEFT' : critical ? 'DAYS LEFT' : finalStretch ? 'TO GLORY' : 'DAYS LEFT';
+  const caption = critical
+    ? 'Down to the wire. Sue is watching the clock.'
+    : urgent
+    ? 'Going down to the wire. Make them count.'
+    : finalStretch
+    ? 'Last lap. Make it count.'
+    : 'Ends June 14 · keep going.';
 
   return (
     <CountdownShell
-      label={finalStretch ? 'Final Stretch' : 'Days Remaining'}
-      number={getDaysRemaining()}
-      suffix={finalStretch ? 'TO GLORY' : 'DAYS LEFT'}
-      caption={finalStretch ? 'Last lap. Make it count.' : 'Ends June 14 · keep going.'}
-      finalStretch={finalStretch}
+      label={label}
+      number={days}
+      suffix={suffix}
+      caption={caption}
+      finalStretch={finalStretch || urgent || critical}
     />
   );
 }

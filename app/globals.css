@@ -118,6 +118,11 @@
     animation: shimmer 1.8s infinite;
   }
 
+  /* Progress bar fill animation — use --bar-width CSS var to set target */
+  .animate-bar-fill {
+    animation: bar-fill 0.9s cubic-bezier(0.32, 0.72, 0, 1) both;
+  }
+
   /* Combined shadow for the weekly roast card: navy drop + gold ambient glow */
   .shadow-roast-card {
     box-shadow: 0 16px 48px -4px rgba(27,47,94,0.22), 0 0 40px rgba(245,197,24,0.12);
@@ -153,6 +158,11 @@
 
 @keyframes shimmer {
   100% { transform: translateX(100%); }
+}
+
+@keyframes bar-fill {
+  from { width: 0%; }
+  to   { width: var(--bar-width, 100%); }
 }
 
 @keyframes float-slow {
