@@ -118,6 +118,16 @@
     animation: shimmer 1.8s infinite;
   }
 
+  /* Progress bar fill animation — use --bar-width CSS var to set target */
+  .animate-bar-fill {
+    animation: bar-fill 0.9s cubic-bezier(0.32, 0.72, 0, 1) both;
+  }
+
+  /* Combined shadow for the weekly roast card: navy drop + gold ambient glow */
+  .shadow-roast-card {
+    box-shadow: 0 16px 48px -4px rgba(27,47,94,0.22), 0 0 40px rgba(245,197,24,0.12);
+  }
+
   /* Pill divider for sections */
   .section-divider {
     height: 1px;
@@ -148,6 +158,11 @@
 
 @keyframes shimmer {
   100% { transform: translateX(100%); }
+}
+
+@keyframes bar-fill {
+  from { width: 0%; }
+  to   { width: var(--bar-width, 100%); }
 }
 
 @keyframes float-slow {
@@ -191,11 +206,15 @@
 
 /* Stagger children fade-ups */
 .stagger-children > * { opacity: 0; animation: fadeInUp 0.4s ease-out forwards; }
-.stagger-children > *:nth-child(1) { animation-delay: 0.05s; }
-.stagger-children > *:nth-child(2) { animation-delay: 0.1s; }
-.stagger-children > *:nth-child(3) { animation-delay: 0.15s; }
-.stagger-children > *:nth-child(4) { animation-delay: 0.2s; }
-.stagger-children > *:nth-child(5) { animation-delay: 0.25s; }
-.stagger-children > *:nth-child(6) { animation-delay: 0.3s; }
+.stagger-children > *:nth-child(1)  { animation-delay: 0.05s; }
+.stagger-children > *:nth-child(2)  { animation-delay: 0.10s; }
+.stagger-children > *:nth-child(3)  { animation-delay: 0.15s; }
+.stagger-children > *:nth-child(4)  { animation-delay: 0.20s; }
+.stagger-children > *:nth-child(5)  { animation-delay: 0.25s; }
+.stagger-children > *:nth-child(6)  { animation-delay: 0.30s; }
+.stagger-children > *:nth-child(7)  { animation-delay: 0.35s; }
+.stagger-children > *:nth-child(8)  { animation-delay: 0.40s; }
+.stagger-children > *:nth-child(9)  { animation-delay: 0.45s; }
+.stagger-children > *:nth-child(10) { animation-delay: 0.50s; }
 .stagger-children > *:nth-child(7) { animation-delay: 0.35s; }
 .stagger-children > *:nth-child(8) { animation-delay: 0.4s; }

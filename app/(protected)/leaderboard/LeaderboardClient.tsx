@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/Card';
 import { OverallLeaderboardRow, WeekLeaderboardRow } from '@/components/LeaderboardRow';
 import { WeekWinnerCard } from '@/components/WeekWinnerCard';
 import { Podium } from '@/components/Podium';
+import { HallOfFame } from '@/components/HallOfFame';
 import { SueMark, LockMark } from '@/components/marks';
 import { sueFor } from '@/lib/sue-says';
 import { formatDate } from '@/lib/dates';
@@ -74,7 +75,7 @@ export function LeaderboardClient({ overall, weekStandings, currentUserId, prize
     <div className="space-y-4">
       {/* Tab strip + refresh */}
       <div className="flex items-center gap-2">
-        <div className="bg-navy/8 rounded-2xl p-1 flex gap-1 overflow-x-auto no-scrollbar flex-1">
+        <div className="bg-navy/8 rounded-2xl p-1 flex gap-1 overflow-x-auto no-scrollbar flex-1 snap-x snap-mandatory">
           {tabs.map(({ id, label, weekData }) => {
             const isActive = tab === id;
             const status = weekData?.status;
@@ -83,7 +84,7 @@ export function LeaderboardClient({ overall, weekStandings, currentUserId, prize
                 key={String(id)}
                 onClick={() => setTab(id)}
                 className={clsx(
-                  'shrink-0 px-3.5 py-2.5 rounded-xl font-body font-semibold text-sm transition-all duration-150 flex flex-col items-center gap-0.5 whitespace-nowrap active:scale-[0.95]',
+                  'shrink-0 snap-start px-3.5 py-2.5 rounded-xl font-body font-semibold text-sm transition-all duration-150 flex flex-col items-center gap-0.5 whitespace-nowrap active:scale-[0.95]',
                   isActive
                     ? 'bg-navy text-white shadow-btn-navy'
                     : weekData?.is_locked
@@ -160,7 +161,7 @@ export function LeaderboardClient({ overall, weekStandings, currentUserId, prize
               <p className="font-body text-xs font-semibold text-gray-400 uppercase tracking-wider px-4 pt-4 pb-3">
                 Full Rankings
               </p>
-              <div className="divide-y divide-gray-50">
+              <div className="divide-y divide-gray-100 stagger-children">
                 {overallRest.map((entry) => (
                   <OverallLeaderboardRow
                     key={entry.participant.id}
@@ -172,6 +173,8 @@ export function LeaderboardClient({ overall, weekStandings, currentUserId, prize
               </div>
             </Card>
           ) : null}
+
+          <HallOfFame weekStandings={weekStandings} />
         </div>
       )}
 
@@ -289,7 +292,7 @@ export function LeaderboardClient({ overall, weekStandings, currentUserId, prize
                     <p className="font-body text-xs font-semibold text-gray-400 uppercase tracking-wider px-4 pt-4 pb-3">
                       {weekPodium.length >= 1 && !activeWeek.is_locked ? 'Full Rankings' : 'Rankings'}
                     </p>
-                    <div className="divide-y divide-gray-50">
+                    <div className="divide-y divide-gray-100 stagger-children">
                       {(weekPodium.length >= 1 && !activeWeek.is_locked ? weekRest : activeWeek.entries).map((entry) => (
                         <WeekLeaderboardRow
                           key={entry.participant.id}

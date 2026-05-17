@@ -489,6 +489,35 @@ export function StepEntryWeek({
                 {dailySum.toLocaleString()}
               </p>
             </div>
+            {/* 7-day sparkline — shows shape of the week at a glance */}
+            {dailySum > 0 && (() => {
+              const vals = days.map((d) => parseInt(dailySteps[d] || '0'));
+              const peak = Math.max(...vals, 1);
+              return (
+                <div className="relative flex items-end gap-0.5 h-5 mt-3">
+                  {days.map((d, i) => {
+                    const v = parseInt(dailySteps[d] || '0');
+                    const pct = v > 0 ? Math.max(12, Math.round((v / peak) * 100)) : 0;
+                    const isToday = d === today;
+                    return (
+                      <div key={d} className="flex-1 flex flex-col justify-end h-full">
+                        <div
+                          className={clsx(
+                            'rounded-sm transition-all duration-300',
+                            pct === 0
+                              ? 'opacity-0'
+                              : dailySum >= 50_000
+                              ? isToday ? 'bg-white/70' : 'bg-white/30'
+                              : isToday ? 'bg-sw-teal/70' : 'bg-sw-pink/25'
+                          )}
+                          style={{ height: `${pct}%` }}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
           </div>
 
           {saveLoading && <p className="text-xs text-gray-400 text-center mt-2">Saving your steps…</p>}

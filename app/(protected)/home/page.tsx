@@ -6,6 +6,7 @@ import { SueSaysCard } from '@/components/SueSaysCard';
 import { MondayBanner } from '@/components/MondayBanner';
 import { CountdownCard } from '@/components/CountdownCard';
 import { PrizesAndRulesCard } from '@/components/PrizesAndRulesCard';
+import { WeeklyRoastCard } from '@/components/WeeklyRoastCard';
 import { LogoutButton } from '@/components/LogoutButton';
 import { CrownMark, SparkleMark } from '@/components/marks';
 import { StepsNavIcon, StandingsNavIcon } from '@/components/marks/nav-icons';
@@ -19,7 +20,7 @@ import {
 } from '@/lib/dates';
 
 async function getHomeData(currentUserId: string | null) {
-  const [pRes, sRes, aRes] = await Promise.all([
+  const [pRes, sRes, aRes, wRes] = await Promise.all([
     supabase.from('participants').select('*').eq('is_active', true).eq('is_observer', false),
     supabase.from('weekly_submissions').select('*'),
     supabase
@@ -28,11 +29,13 @@ async function getHomeData(currentUserId: string | null) {
       .eq('is_active', true)
       .order('created_at', { ascending: false })
       .limit(3),
+    supabase.from('weeks').select('*').order('week_number'),
   ]);
 
   const participants = pRes.data ?? [];
   const submissions = sRes.data ?? [];
   const announcements = aRes.data ?? [];
+  const weeks = wRes.data ?? [];
   const total = participants.length;
 
   const totals = new Map<string, { steps: number; first_at: string | null; count: number }>();
@@ -59,6 +62,7 @@ async function getHomeData(currentUserId: string | null) {
 
   const overallLeader = sorted[0] ?? null;
   const secondPlace = sorted[1] ?? null;
+  const userIsOverallLeader = currentUserId ? sorted[0]?.participant.id === currentUserId : false;
 
   const userIndex = currentUserId ? sorted.findIndex((s) => s.participant.id === currentUserId) : -1;
   const userStats = userIndex >= 0 ? {
@@ -94,6 +98,71 @@ async function getHomeData(currentUserId: string | null) {
 
   const totalGroupSteps = submissions.reduce((sum, s) => sum + s.total_steps, 0);
 
+  // ── Weekly Roast data ───────────────────────────────────────────────────────
+  const lastLockedWeek = weeks
+    .filter((w) => w.is_locked)
+    .sort((a, b) => b.week_number - a.week_number)[0] ?? null;
+
+  let weekRoast: {
+    weekNumber: number;
+    winnerFirstName: string;
+    winnerSteps: number;
+    margin: number;
+    lateCount: number;
+    pbHolderFirstName: string | null;
+    isClose: boolean;
+  } | null = null;
+
+  if (lastLockedWeek) {
+    const wn = lastLockedWeek.week_number;
+    const weekSubs = submissions.filter((s) => s.week_number === wn);
+
+    // Winner
+    let winnerId: string | null = lastLockedWeek.winner_override_id ?? null;
+    const sortedWeekSubs = [...weekSubs].sort((a, b) => b.total_steps - a.total_steps);
+    if (!winnerId && sortedWeekSubs[0]) winnerId = sortedWeekSubs[0].participant_id;
+
+    const winner = winnerId ? participants.find((p) => p.id === winnerId) ?? null : null;
+    const winnerSub = winnerId ? weekSubs.find((s) => s.participant_id === winnerId) : null;
+    const winnerSteps = winnerSub?.total_steps ?? 0;
+
+    // Margin vs 2nd
+    const secondSub = sortedWeekSubs.find((s) => s.participant_id !== winnerId);
+    const margin = secondSub ? winnerSteps - secondSub.total_steps : winnerSteps;
+
+    // Late count
+    const lateCount = weekSubs.filter((s) => s.is_late).length;
+
+    // PB holder — someone whose steps this week exceed all their prior weeks
+    let pbHolderFirstName: string | null = null;
+    for (const p of participants) {
+      const thisWeek = weekSubs.find((s) => s.participant_id === p.id)?.total_steps ?? 0;
+      if (thisWeek === 0) continue;
+      const priorMax = submissions
+        .filter((s) => s.participant_id === p.id && s.week_number < wn)
+        .reduce((max, s) => Math.max(max, s.total_steps), 0);
+      if (priorMax > 0 && thisWeek > priorMax) {
+        // Prefer the winner as PB holder for context; otherwise first found
+        if (p.id === winnerId || pbHolderFirstName === null) {
+          pbHolderFirstName = p.first_name;
+        }
+        if (p.id === winnerId) break;
+      }
+    }
+
+    if (winner) {
+      weekRoast = {
+        weekNumber: wn,
+        winnerFirstName: winner.first_name,
+        winnerSteps,
+        margin,
+        lateCount,
+        pbHolderFirstName,
+        isClose: margin < 5000,
+      };
+    }
+  }
+
   return {
     total,
     overallLeader,
@@ -104,6 +173,8 @@ async function getHomeData(currentUserId: string | null) {
     announcements,
     userStats,
     totalGroupSteps,
+    weekRoast,
+    userIsOverallLeader,
   };
 }
 
@@ -119,6 +190,8 @@ export default async function HomePage() {
     announcements,
     userStats,
     totalGroupSteps,
+    weekRoast,
+    userIsOverallLeader,
   } = await getHomeData(session?.id ?? null);
 
   const isMonday = isMondayEDT();
@@ -210,8 +283,12 @@ export default async function HomePage() {
       {/* Announcements */}
       {announcements.length > 0 && (
         <div className="px-4 pt-3 space-y-2">
-          {announcements.map((a) => (
-            <div key={a.id} className="bg-gold/15 border border-gold/40 rounded-xl p-4 flex items-start gap-2.5 animate-fade-up shadow-el-1">
+          {announcements.map((a, i) => (
+            <div
+              key={a.id}
+              className="bg-gold/15 border border-gold/40 rounded-xl p-4 flex items-start gap-2.5 animate-fade-up shadow-el-1"
+              style={{ animationDelay: `${i * 80}ms` }}
+            >
               <SparkleMark className="w-4 h-4 text-gold-dark shrink-0 mt-0.5" />
               <p className="font-body text-navy text-sm font-medium">{a.message}</p>
             </div>
@@ -246,8 +323,8 @@ export default async function HomePage() {
               <div className="mb-3">
                 <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-sw-pink to-gold rounded-full transition-all duration-500"
-                    style={{ width: `${progressPct}%` }}
+                    className="h-full bg-gradient-to-r from-sw-pink to-gold rounded-full animate-bar-fill"
+                    style={{ '--bar-width': `${progressPct}%` } as React.CSSProperties}
                   />
                 </div>
                 <p className="font-body text-xs text-gray-400 mt-1">
@@ -257,12 +334,33 @@ export default async function HomePage() {
             )}
 
             <div className="flex items-center justify-between border-t border-gray-100 pt-3">
-              <p className="font-body text-xs text-gray-400">{userStats.weeksSubmitted}/4 weeks submitted</p>
+              <div className="flex items-center gap-1.5">
+                {[1, 2, 3, 4].map((w) => (
+                  <div
+                    key={w}
+                    className={w <= userStats.weeksSubmitted ? 'w-2 h-2 rounded-full bg-sw-pink' : 'w-2 h-2 rounded-full bg-gray-200'}
+                  />
+                ))}
+                <span className="font-body text-xs text-gray-400 ml-0.5">{userStats.weeksSubmitted}/4 wks</span>
+              </div>
               {!challengeOver && (
                 <p className="font-body text-xs text-gray-400">{daysLeft} day{daysLeft !== 1 ? 's' : ''} left</p>
               )}
             </div>
           </div>
+        )}
+
+        {/* Weekly Roast — appears after a week locks */}
+        {weekRoast && (
+          <WeeklyRoastCard
+            weekNumber={weekRoast.weekNumber}
+            winnerFirstName={weekRoast.winnerFirstName}
+            winnerSteps={weekRoast.winnerSteps}
+            margin={weekRoast.margin}
+            lateCount={weekRoast.lateCount}
+            pbHolderFirstName={weekRoast.pbHolderFirstName}
+            isClose={weekRoast.isClose}
+          />
         )}
 
         {/* Gap / motivation card */}
@@ -352,14 +450,14 @@ export default async function HomePage() {
 
         {/* Community strip — challengers + group total */}
         {challengeStarted && (
-          <div className="bg-white rounded-2xl shadow-el-2 p-4 flex items-center">
+          <div className={`rounded-2xl shadow-el-2 p-4 flex items-center ${totalGroupSteps >= 1_000_000 ? 'bg-gold/8 border border-gold/25' : 'bg-white'}`}>
             <div className="flex-1 text-center">
               <p className="display-md text-navy leading-none">{total}</p>
               <p className="font-body text-xs text-gray-400 mt-0.5">Challenger{total !== 1 ? 's' : ''}</p>
             </div>
             <div className="w-px bg-gray-100 self-stretch" />
             <div className="flex-1 text-center">
-              <p className="display-md text-sw-pink leading-none">
+              <p className={`display-md leading-none ${totalGroupSteps >= 1_000_000 ? 'text-gold-dark' : 'text-sw-pink'}`}>
                 {totalGroupSteps >= 1_000_000
                   ? `${(totalGroupSteps / 1_000_000).toFixed(1)}M`
                   : totalGroupSteps >= 1000
@@ -368,7 +466,9 @@ export default async function HomePage() {
                   ? totalGroupSteps.toLocaleString()
                   : '—'}
               </p>
-              <p className="font-body text-xs text-gray-400 mt-0.5">Group steps</p>
+              <p className="font-body text-xs text-gray-400 mt-0.5">
+                {totalGroupSteps >= 1_000_000 ? '✨ Group steps' : 'Group steps'}
+              </p>
             </div>
           </div>
         )}
@@ -383,9 +483,10 @@ export default async function HomePage() {
               </div>
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-1 h-8 rounded-full bg-gold shrink-0" />
-                  <p className="font-body text-sm font-semibold text-navy flex-1 truncate">
+                  <div className="w-1 h-8 rounded-full bg-gold shrink-0 shadow-[0_0_6px_rgba(245,197,24,0.5)]" />
+                  <p className={`font-body text-sm font-semibold flex-1 truncate ${userIsOverallLeader ? 'text-gold-dark' : 'text-navy'}`}>
                     Overall · {overallLeaderName ?? 'No entries yet'}
+                    {userIsOverallLeader && <span className="text-[10px] text-gold-dark/70 ml-1">(you)</span>}
                   </p>
                   <p className="display-xs text-navy shrink-0">
                     {overallLeader && overallLeader.steps > 0 ? overallLeader.steps.toLocaleString() : '—'}
@@ -393,7 +494,7 @@ export default async function HomePage() {
                 </div>
                 {currentWeek !== null && (
                   <div className="flex items-center gap-3">
-                    <div className="w-1 h-8 rounded-full bg-sw-teal shrink-0" />
+                    <div className="w-1 h-8 rounded-full bg-sw-teal shrink-0 shadow-[0_0_6px_rgba(43,184,170,0.4)]" />
                     <p className="font-body text-sm font-semibold text-navy flex-1 truncate">
                       Week {currentWeek} · {weekLeaderName ?? 'No entries yet'}
                     </p>

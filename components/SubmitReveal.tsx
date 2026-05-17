@@ -36,7 +36,15 @@ export function SubmitReveal({ open, submittedTotal, weekNumber, allSubmissions,
     const isFirstWeek = priorTotals.length === 0;
     const delta = priorAvg > 0 ? submittedTotal - priorAvg : 0;
     const submittedWeeks = priors.filter((s) => s.total_steps > 0).length + 1;
-    return { isPB, isFirstWeek, delta, priorAvg, submittedWeeks };
+
+    // Consecutive streak ending at this week
+    const submittedWeekNums = new Set(allSubmissions.filter((s) => s.total_steps > 0).map((s) => s.week_number));
+    submittedWeekNums.add(weekNumber);
+    let streak = 1;
+    let w = weekNumber - 1;
+    while (w >= 1 && submittedWeekNums.has(w)) { streak++; w--; }
+
+    return { isPB, isFirstWeek, delta, priorAvg, submittedWeeks, streak };
   }, [allSubmissions, weekNumber, submittedTotal]);
 
   // Phase sequencing
@@ -158,14 +166,24 @@ export function SubmitReveal({ open, submittedTotal, weekNumber, allSubmissions,
         {/* Rank/delta phase */}
         {(phase === 'rank' || phase === 'sue' || phase === 'done') && (
           <div className="mt-6 flex flex-col items-center gap-2 animate-fade-up">
-            {insights.isPB && (
-              <div className="inline-flex items-center gap-1.5 bg-gold/20 border border-gold/40 rounded-full px-3 py-1.5">
-                <SparkleMark className="w-3.5 h-3.5 text-gold" />
-                <span className="font-body text-gold-light font-bold text-xs tracking-wider uppercase">
-                  Personal Best
-                </span>
-              </div>
-            )}
+            <div className="flex items-center gap-2 flex-wrap justify-center">
+              {insights.isPB && (
+                <div className="inline-flex items-center gap-1.5 bg-gold/20 border border-gold/40 rounded-full px-3 py-1.5">
+                  <SparkleMark className="w-3.5 h-3.5 text-gold" />
+                  <span className="font-body text-gold-light font-bold text-xs tracking-wider uppercase">
+                    Personal Best
+                  </span>
+                </div>
+              )}
+              {insights.streak >= 2 && (
+                <div className="inline-flex items-center gap-1.5 bg-sw-pink/20 border border-sw-pink/40 rounded-full px-3 py-1.5">
+                  <span className="text-xs">🔥</span>
+                  <span className="font-body text-sw-pink font-bold text-xs tracking-wider uppercase">
+                    {insights.streak}-Week Streak
+                  </span>
+                </div>
+              )}
+            </div>
             {insights.isFirstWeek ? (
               <p className="font-body text-white/70 text-sm text-center max-w-xs">
                 Your first week is in the books. Three to go.

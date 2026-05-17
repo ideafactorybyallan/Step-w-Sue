@@ -4,11 +4,27 @@ import { avatarBg, avatarFg } from '@/lib/avatar';
 import { MedalMark, FootprintMark, LockMark } from './marks';
 import type { LeaderboardEntry, WeekLeaderboardEntry } from '@/lib/types';
 
-function RankCell({ rank }: { rank: number }) {
-  if (rank === 1 || rank === 2 || rank === 3) {
-    return <MedalMark rank={rank} className="w-5 h-7" />;
-  }
-  return <span className="display-sm text-navy/35">{rank}</span>;
+function RankCell({ rank, rankDelta }: { rank: number; rankDelta?: number | null }) {
+  const medal = rank === 1 || rank === 2 || rank === 3;
+  return (
+    <div className="flex flex-col items-center gap-0.5">
+      {medal ? (
+        <MedalMark rank={rank as 1 | 2 | 3} className="w-5 h-7" />
+      ) : (
+        <span className="display-sm text-navy/35">{rank}</span>
+      )}
+      {rankDelta != null && (
+        <span
+          className={clsx(
+            'font-body text-[9px] leading-none font-bold tabular-nums',
+            rankDelta > 0 ? 'text-emerald-600' : rankDelta < 0 ? 'text-red-400' : 'text-gray-300'
+          )}
+        >
+          {rankDelta > 0 ? `↑${rankDelta}` : rankDelta < 0 ? `↓${Math.abs(rankDelta)}` : '—'}
+        </span>
+      )}
+    </div>
+  );
 }
 
 function Avatar({
@@ -48,7 +64,7 @@ interface OverallProps {
 }
 
 export function OverallLeaderboardRow({ entry, isCurrentUser, gapToLeader }: OverallProps) {
-  const { participant: p, rank, total_steps, weeks_submitted, title, title_emoji, title_colorClass, has_late } = entry;
+  const { participant: p, rank, rank_delta, total_steps, weeks_submitted, title, title_emoji, title_colorClass, has_late } = entry;
   const name = p.nickname ?? `${p.first_name} ${p.last_name}`;
 
   return (
@@ -60,7 +76,7 @@ export function OverallLeaderboardRow({ entry, isCurrentUser, gapToLeader }: Ove
       )}
     >
       <div className="w-7 flex items-center justify-center shrink-0">
-        <RankCell rank={rank} />
+        <RankCell rank={rank} rankDelta={rank_delta} />
       </div>
 
       <Avatar firstName={p.first_name} lastName={p.last_name} isCurrentUser={isCurrentUser} />

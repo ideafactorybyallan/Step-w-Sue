@@ -99,11 +99,15 @@ async function getLeaderboardData() {
 
   const overall = sortedOverall.map((e, i) => {
     const t = titleMap.get(e.participant.id)!;
+    const prevRank = prevRankMap.get(e.participant.id) ?? i + 1;
+    // Only show rank delta when at least 2 weeks of submissions exist
+    const rankDelta = mostRecentWeek !== null && mostRecentWeek > 1 ? prevRank - (i + 1) : null;
     return {
       participant: e.participant,
       total_steps: e.steps,
       weeks_submitted: e.count,
       rank: i + 1,
+      rank_delta: rankDelta,
       title: t.label,
       title_emoji: t.emoji,
       title_colorClass: t.colorClass,

@@ -41,6 +41,7 @@ export interface LeaderboardEntry {
   total_steps: number;
   weeks_submitted: number;
   rank: number;
+  rank_delta: number | null; // positive = moved up, negative = moved down, null = no prior data
   title: string;
   title_emoji: string;
   title_colorClass: string;
